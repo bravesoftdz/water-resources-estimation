@@ -21,18 +21,15 @@ class SubBacia:
 
 	def calculaHUI(self):
 		i = 0
-		for value in dt:
+		tempHui = list(dt)
+		for value in self.hui:
 			#Coluna E
 			self.hui[i] = (1/(self.k*math.exp(math.lgamma(self.n))))*math.exp(-dt[i]/self.k)*math.pow((dt[i]/self.k),(self.n-1))
 
 			#Coluna F
 			# 10000000/60000 = 1000/6
 			self.hui[i] = float(1000/6) * self.area * self.hui[i]
-			i+=1
 
-		i = 0
-		tempHui = list(dt)
-		for value in self.hui:
 			#Coluna G
 			if i == 0:
 				tempHui[i] = float(self.hui[i] / 2)				
