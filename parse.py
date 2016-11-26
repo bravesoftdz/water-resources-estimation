@@ -13,6 +13,7 @@ class SubBacia:
 		self.ia = 0.0
 		self.leituras = []
 		self.hui = list(dt)
+		self.verificacaoPu = 0.0
 
 	def show(self):
 		print("Área: " + str(self.area) + "   cn: " + str(self.cn) + "   k: " + str(self.k) + "   n: " + str(self.n) + "   Ia: " + str(self.ia))
@@ -43,6 +44,18 @@ class SubBacia:
 		self.hui = tempHui
 		tempHui = []
 
+	def calculaVerificacaoPu(self):
+		#Verificação de Pu = 1mm   ↑
+		#=(SOMA(H3:H132)*30*60)/(D3*1000)
+		#				 180
+		soma = 0.0
+		for value in self.hui:
+			soma += value
+		self.verificacaoPu = (soma * 180) / (self.area * 1000)
+
+	def calcula(self):
+		self.calculaHUI()
+		self.calculaVerificacaoPu()
 
 
 with open('in.txt','r') as f:
@@ -72,9 +85,10 @@ for line in content:
 i = 1
 for sb in subBacias:
 	print("SubBacia " + str(i))
-	sb.show()
-	sb.calculaHUI()
+	#sb.show()
+	sb.calcula()
 	print(sb.hui)
+	print("sb.verificacaoPu: " + str(sb.verificacaoPu))
 	i+=1
 
 
