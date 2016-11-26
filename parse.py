@@ -18,6 +18,11 @@ class SubBacia:
 		self.ia = 0.0
 		self.leituras = []
 
+	def print(self):
+		print("Área: " + str(self.area) + "   cn: " + str(self.cn) + "   k: " + str(self.k) + "   n: " + str(self.n) + "   Ia: " + str(self.ia))
+		for l in sb.leituras:
+			print(l)
+
 
 
 
@@ -26,32 +31,27 @@ with open('in.txt','r') as f:
 	print("nbacias: ",nBacias)
 	subBacias = [SubBacia() for i in range(int(nBacias))]
 	content = f.read().splitlines()
-	i = 0
-	leuIa = False
-	for line in content:
-		valores = line.split()
-		if(len(valores) >= 2):
-			subBacias[i].area = float(valores[0])
-			subBacias[i].cn = float(valores[1])
-			subBacias[i].k = float(valores[2])
-			subBacias[i].n = float(valores[3])
-			i+=1
-			leuIa = False
+
+i = 0
+leuIa = False
+for line in content:
+	valores = line.split()
+	if(len(valores) >= 2):
+		subBacias[i].area = float(valores[0])
+		subBacias[i].cn = float(valores[1])
+		subBacias[i].k = float(valores[2])
+		subBacias[i].n = float(valores[3])
+		i+=1
+		leuIa = False
+	else:
+		if not leuIa:
+			subBacias[i-1].ia = float(line)
+			leuIa = True
 		else:
-			print('\t' + str(leuIa))
-			if not leuIa:
-				print("lendo Ia")
-				print(subBacias[i-1].ia)
-				subBacias[i-1].ia = float(line)
-				print(subBacias[i-1].ia)
-				leuIa = True
-			else:
-				subBacias[i-1].leituras.append(float(line))
-				
-		#print(i)
+			subBacias[i-1].leituras.append(float(line))
+		
 i = 1
 for sb in subBacias:
-	print("SubBacia "  + str(i) + "   area: " + str(sb.area) + "   cn: " + str(sb.cn) + "   k: " + str(sb.k) + "   n: " + str(sb.n) + "   Ia: " + str(sb.ia))
-	for l in sb.leituras:
-		print(l)
+	print("SubBacia " + str(i))
+	sb.print()
 	i+=1
