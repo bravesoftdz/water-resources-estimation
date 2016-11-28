@@ -1,0 +1,1825 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1046{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 6.3.9600}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang22 function CCEUA(cdsEntrada, cdsParameter, cdsParameters_Distribuido, cdsResults, cdsResults_Lambda, cdsResults_Kb, cdsResults_Kss, cdsResults_Kcr : TClientDataSet; strP5 : TStringGrid; Hydrograph, graphAmin, graphAmax, graphAmed, graphKs, graphP : TChart; a, b: Double; bl_L, bu_L, bl_DT, bu_DT : Array of Double) : Double;\par
+Var\par
+  n, m : Integer;\par
+  Cont_m1, Cont_m2, Cont_m3, Cont_m4, Cont_m5,\par
+  Cont_m6, Cont_n, I, J, ibound, Contador_Random : Integer;\par
+  Valor : Double;\par
+  Label Fim;\par
+Begin\par
+    n := nps;\par
+    m := nopt_L;\par
+    // Assing the best and worst points\par
+    sb_L := nil;\par
+    sw_L := nil;\par
+    snew_L := nil;\par
+    SetLength (sb_L, m);\par
+    SetLength (sw_L, m);\par
+    SetLength (snew_L, m);\par
+\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           sb_Lambda := nil;\par
+           sw_Lambda := nil;\par
+           snew_Lambda := nil;\par
+           SetLength (sb_Lambda, Number_subwatersheds);\par
+           SetLength (sw_Lambda, Number_subwatersheds);\par
+           SetLength (snew_Lambda, Number_subwatersheds);\par
+       End;\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           sb_Kb := nil;\par
+           sw_Kb := nil;\par
+           snew_Kb := nil;\par
+           SetLength (sb_Kb, Number_subwatersheds);\par
+           SetLength (sw_Kb, Number_subwatersheds);\par
+           SetLength (snew_Kb, Number_subwatersheds);\par
+       End;\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           sb_Kss := nil;\par
+           sw_Kss := nil;\par
+           snew_Kss := nil;\par
+           SetLength (sb_Kss, Number_subwatersheds);\par
+           SetLength (sw_Kss, Number_subwatersheds);\par
+           SetLength (snew_Kss, Number_subwatersheds);\par
+       End;\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           sb_Kcr := nil;\par
+           sw_Kcr := nil;\par
+           snew_Kcr := nil;\par
+           SetLength (sb_Kcr, Number_subwatersheds);\par
+           SetLength (sw_Kcr, Number_subwatersheds);\par
+           SetLength (snew_Kcr, Number_subwatersheds);\par
+       End;\par
+\par
+    For Cont_m1 := 1 to m do\par
+       Begin\par
+           sb_L [Cont_m1 - 1] := s_L [0 , (Cont_m1 - 1)];\par
+           sw_L [Cont_m1 - 1] := s_L [(n - 1), (Cont_m1 - 1)];\par
+       End;\par
+\par
+    fb_L := sf_L [0];\par
+    fw_L := sf_L [n - 1];\par
+\par
+    For Cont_m1 := 1 to Number_subwatersheds do\par
+       Begin\par
+           If Calibrate_Lambda_DT = True Then\par
+              Begin\par
+                  sb_Lambda [Cont_m1 - 1] := s_Lambda [0 , (Cont_m1 - 1)];\par
+                  sw_Lambda [Cont_m1 - 1] := s_Lambda [(n - 1), (Cont_m1 - 1)];\par
+              End;\par
+           If Calibrate_Kb_DT = True Then\par
+              Begin\par
+                  sb_Kb [Cont_m1 - 1] := s_Kb [0 , (Cont_m1 - 1)];\par
+                  sw_Kb [Cont_m1 - 1] := s_Kb [(n - 1), (Cont_m1 - 1)];\par
+              End;\par
+           If Calibrate_Kss_DT = True Then\par
+              Begin\par
+                  sb_Kss [Cont_m1 - 1] := s_Kss [0 , (Cont_m1 - 1)];\par
+                  sw_Kss [Cont_m1 - 1] := s_Kss [(n - 1), (Cont_m1 - 1)];\par
+              End;\par
+           If Calibrate_Kcap_DT = True Then\par
+              Begin\par
+                  sb_Kcr [Cont_m1 - 1] := s_Kcr [0 , (Cont_m1 - 1)];\par
+                  sw_Kcr [Cont_m1 - 1] := s_Kcr [(n - 1), (Cont_m1 - 1)];\par
+              End;\par
+       End;\par
+\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           fb_Lambda := sf_Lambda [0];\par
+           fw_Lambda := sf_Lambda [n - 1];\par
+       End;\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           fb_Kb := sf_Kb [0];\par
+           fw_Kb := sf_Kb [n - 1];\par
+       End;\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           fb_Kss := sf_Kss [0];\par
+           fw_Kss := sf_Kss [n - 1];\par
+       End;\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           fb_Kcr := sf_Kcr [0];\par
+           fw_Kcr := sf_Kcr [n - 1];\par
+       End;\par
+    // Assing the best and worst points\par
+\par
+    // Compute the centroid of the simplex excluding the worst point\par
+    ce_L := nil;\par
+    Setlength (ce_L, m);\par
+\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           ce_Lambda := nil;\par
+           SetLength (ce_Lambda, Number_subwatersheds);\par
+       End;\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           ce_Kb := nil;\par
+           SetLength (ce_Kb, Number_subwatersheds);\par
+       End;\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           ce_Kss := nil;\par
+           SetLength (ce_Kss, Number_subwatersheds);\par
+       End;\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           ce_Kcr := nil;\par
+           SetLength (ce_Kcr, Number_subwatersheds);\par
+       End;\par
+    \par
+    For Cont_m2 := 1 to m do\par
+       Begin\par
+           Valor := 0;\par
+           For Cont_n := 1 to (n - 1) do\par
+              Valor := Valor + s_L [(Cont_n - 1), (Cont_m2 - 1)];\par
+           ce_L [Cont_m2 - 1] := Valor / (n - 1);\par
+       End;\par
+\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           For Cont_m2 := 1 to Number_subwatersheds do\par
+              Begin\par
+                  Valor := 0;\par
+                  For Cont_n := 1 to (n - 1) do\par
+                     Valor := Valor + s_Lambda [(Cont_n - 1), (Cont_m2 - 1)];\par
+                  ce_Lambda [Cont_m2 - 1] := Valor / (n - 1);\par
+              End;\par
+       End;\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           For Cont_m2 := 1 to Number_subwatersheds do\par
+              Begin\par
+                  Valor := 0;\par
+                  For Cont_n := 1 to (n - 1) do\par
+                     Valor := Valor + s_Kb [(Cont_n - 1), (Cont_m2 - 1)];\par
+                  ce_Kb [Cont_m2 - 1] := Valor / (n - 1);\par
+              End;\par
+       End;\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           For Cont_m2 := 1 to Number_subwatersheds do\par
+              Begin\par
+                  Valor := 0;\par
+                  For Cont_n := 1 to (n - 1) do\par
+                     Valor := Valor + s_Kss [(Cont_n - 1), (Cont_m2 - 1)];\par
+                  ce_Kss [Cont_m2 - 1] := Valor / (n - 1);\par
+              End;\par
+       End;\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           For Cont_m2 := 1 to Number_subwatersheds do\par
+              Begin\par
+                  Valor := 0;\par
+                  For Cont_n := 1 to (n - 1) do\par
+                     Valor := Valor + s_Kcr [(Cont_n - 1), (Cont_m2 - 1)];\par
+                  ce_Kcr [Cont_m2 - 1] := Valor / (n - 1);\par
+              End;\par
+       End;\par
+    // Compute the centroid of the simplex excluding the worst point\par
+\par
+    // Attempt a reflection point\par
+    For Cont_m3 := 1 to m do\par
+       snew_L [Cont_m3 - 1] := ce_L [Cont_m3 - 1] + a * (ce_L [Cont_m3 - 1] - sw_L [Cont_m3 - 1]);\par
+\par
+    For Cont_m3 := 1 to Number_subwatersheds do\par
+       Begin\par
+           If Calibrate_Lambda_DT = True Then snew_Lambda [Cont_m3 - 1] := ce_Lambda [Cont_m3 - 1] + a * (ce_Lambda [Cont_m3 - 1] - sw_Lambda [Cont_m3 - 1]);\par
+           If Calibrate_Kb_DT = True Then snew_Kb [Cont_m3 - 1] := ce_Kb [Cont_m3 - 1] + a * (ce_Kb [Cont_m3 - 1] - sw_Kb [Cont_m3 - 1]);\par
+           If Calibrate_Kss_DT = True Then snew_Kss [Cont_m3 - 1] := ce_Kss [Cont_m3 - 1] + a * (ce_Kss [Cont_m3 - 1] - sw_Kss [Cont_m3 - 1]);\par
+           If Calibrate_Kcap_DT = True Then snew_Kcr [Cont_m3 - 1] := ce_Kcr [Cont_m3 - 1] + a * (ce_Kcr [Cont_m3 - 1] - sw_Kcr [Cont_m3 - 1]);\par
+       End;\par
+\par
+    // Attempt a reflection point\par
+\par
+    // Check if is outside the bounds\par
+    ibound  := 0;\par
+    s1_L := nil;\par
+    SetLength (s1_L, m);\par
+    s2_L := nil;\par
+    SetLength (s2_L, m);\par
+    Parameters_New_L := nil;\par
+    SetLength (Parameters_New_L, m);\par
+\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           s1_Lambda := nil;\par
+           SetLength (s1_Lambda, Number_subwatersheds);\par
+           s2_Lambda := nil;\par
+           SetLength (s2_Lambda, Number_subwatersheds);\par
+           Parameters_New_Lambda := nil;\par
+           SetLength (Parameters_New_Lambda, Number_subwatersheds);\par
+       End;\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           s1_Kb := nil;\par
+           SetLength (s1_Kb, Number_subwatersheds);\par
+           s2_Kb := nil;\par
+           SetLength (s2_Kb, Number_subwatersheds);\par
+           Parameters_New_Kb := nil;\par
+           SetLength (Parameters_New_Kb, Number_subwatersheds);\par
+       End;\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           s1_Kss := nil;\par
+           SetLength (s1_Kss, Number_subwatersheds);\par
+           s2_Kss := nil;\par
+           SetLength (s2_Kss, Number_subwatersheds);\par
+           Parameters_New_Kss := nil;\par
+           SetLength (Parameters_New_Kss, Number_subwatersheds);\par
+       End;\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           s1_Kcr := nil;\par
+           SetLength (s1_Kcr, Number_subwatersheds);\par
+           s2_Kcr := nil;\par
+           SetLength (s2_Kcr, Number_subwatersheds);\par
+           Parameters_New_Kcr := nil;\par
+           SetLength (Parameters_New_Kcr, Number_subwatersheds);\par
+       End;\par
+\par
+    Randomize;\par
+\par
+    cdsResults.Append;\par
+    For Cont_m4 := 1 to m do\par
+       Begin\par
+           s1_L [Cont_m4 - 1] := snew_L [Cont_m4 - 1] - bl_L [Cont_m4 - 1];\par
+           s2_L [Cont_m4 - 1] := bu_L [Cont_m4 - 1] - snew_L [Cont_m4 - 1];\par
+           If ((s1_L [Cont_m4 - 1] < 0) or (s2_L [Cont_m4 - 1] < 0)) Then\par
+              snew_L [Cont_m4 - 1] := bl_L [Cont_m4 - 1] + (Random * (bu_L [Cont_m4 - 1] - bl_L [Cont_m4 - 1]));\par
+\par
+           cdsResults.Fields [Cont_m4].Value := formatfloat('###,###,##0.0000', snew_L [Cont_m4 - 1]);\par
+       End;\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           cdsResults_Lambda.Append;\par
+           For Cont_m4 := 1 to Number_subwatersheds do\par
+              Begin\par
+                  If cdsParameters_Distribuido.Locate('Parameter', 'Lambda', [loCaseInsensitive]) = True Then\par
+                     Begin\par
+                         s1_Lambda [Cont_m4 - 1] := snew_Lambda [Cont_m4 - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1];\par
+                         s2_Lambda [Cont_m4 - 1] := bu_DT [cdsParameters_Distribuido.RecNo - 1] - snew_Lambda [Cont_m4 - 1];\par
+                         If ((s1_Lambda [Cont_m4 - 1] < 0) or (s2_Lambda [Cont_m4 - 1] < 0)) Then\par
+                            snew_Lambda [Cont_m4 - 1] := bl_DT [cdsParameters_Distribuido.RecNo - 1] + (Random * (bu_DT [cdsParameters_Distribuido.RecNo - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1]));\par
+                         cdsResults_Lambda.Fields [Cont_m4].Value := formatfloat('###,###,##0.0000', snew_Lambda [Cont_m4 - 1]);\par
+                     End;\par
+              End;\par
+       End;\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           cdsResults_Kb.Append;\par
+           For Cont_m4 := 1 to Number_subwatersheds do\par
+              Begin\par
+                  If cdsParameters_Distribuido.Locate('Parameter', 'Kb', [loCaseInsensitive]) = True Then\par
+                     Begin\par
+                         s1_Kb [Cont_m4 - 1] := snew_Kb [Cont_m4 - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1];\par
+                         s2_Kb [Cont_m4 - 1] := bu_DT [cdsParameters_Distribuido.RecNo - 1] - snew_Kb [Cont_m4 - 1];\par
+                         If ((s1_Kb [Cont_m4 - 1] < 0) or (s2_Kb [Cont_m4 - 1] < 0)) Then\par
+                            snew_Kb [Cont_m4 - 1] := bl_DT [cdsParameters_Distribuido.RecNo - 1] + (Random * (bu_DT [cdsParameters_Distribuido.RecNo - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1]));\par
+                         cdsResults_Kb.Fields [Cont_m4].Value := formatfloat('###,###,##0.0000', snew_Kb [Cont_m4 - 1]);\par
+                     End;\par
+              End;\par
+       End;\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           cdsResults_Kss.Append;\par
+           For Cont_m4 := 1 to Number_subwatersheds do\par
+              Begin\par
+                  If cdsParameters_Distribuido.Locate('Parameter', 'Kss', [loCaseInsensitive]) = True Then\par
+                     Begin\par
+                         s1_Kss [Cont_m4 - 1] := snew_Kss [Cont_m4 - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1];\par
+                         s2_Kss [Cont_m4 - 1] := bu_DT [cdsParameters_Distribuido.RecNo - 1] - snew_Kss [Cont_m4 - 1];\par
+                         If ((s1_Kss [Cont_m4 - 1] < 0) or (s2_Kss [Cont_m4 - 1] < 0)) Then\par
+                            snew_Kss [Cont_m4 - 1] := bl_DT [cdsParameters_Distribuido.RecNo - 1] + (Random * (bu_DT [cdsParameters_Distribuido.RecNo - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1]));\par
+                         cdsResults_Kss.Fields [Cont_m4].Value := formatfloat('###,###,##0.0000', snew_Kss [Cont_m4 - 1]);\par
+                     End;\par
+              End;\par
+       End;\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           cdsResults_Kcr.Append;\par
+           For Cont_m4 := 1 to Number_subwatersheds do\par
+              Begin\par
+                  If cdsParameters_Distribuido.Locate('Parameter', 'Kcap', [loCaseInsensitive]) = True Then\par
+                     Begin\par
+                         s1_Kcr [Cont_m4 - 1] := snew_Kcr [Cont_m4 - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1];\par
+                         s2_Kcr [Cont_m4 - 1] := bu_DT [cdsParameters_Distribuido.RecNo - 1] - snew_Kcr [Cont_m4 - 1];\par
+                         If ((s1_Kcr [Cont_m4 - 1] < 0) or (s2_Kcr [Cont_m4 - 1] < 0)) Then\par
+                            snew_Kcr [Cont_m4 - 1] := bl_DT [cdsParameters_Distribuido.RecNo - 1] + (Random * (bu_DT [cdsParameters_Distribuido.RecNo - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1]));\par
+                         cdsResults_Kcr.Fields [Cont_m4].Value := formatfloat('###,###,##0.0000', snew_Kcr [Cont_m4 - 1]);\par
+                     End;\par
+              End;\par
+       End;\par
+\par
+    If cdsParameter.Locate('Parameter', 'IVSMC', [loCaseInsensitive]) = True Then\par
+       Percentage_Am := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Kb', [loCaseInsensitive]) = True Then\par
+       Kb := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Kss', [loCaseInsensitive]) = True Then\par
+       Kss := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Kcap', [loCaseInsensitive]) = True Then\par
+       Kcap := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Lambda', [loCaseInsensitive]) = True Then\par
+       Lambda := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Cs', [loCaseInsensitive]) = True Then\par
+       Cs := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Css', [loCaseInsensitive]) = True Then\par
+       Css := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Cbase', [loCaseInsensitive]) = True Then\par
+       Cbase := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Ac', [loCaseInsensitive]) = True Then\par
+       Ac := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Acc', [loCaseInsensitive]) = True Then\par
+       Acc := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'Acr', [loCaseInsensitive]) = True Then\par
+       Acr := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'AL', [loCaseInsensitive]) = True Then\par
+       AL := snew_L [cdsParameter.RecNo - 1];\par
+    If cdsParameter.Locate('Parameter', 'PS', [loCaseInsensitive]) = True Then\par
+       Pr := snew_L [cdsParameter.RecNo - 1];\par
+\par
+    //ShowMessage('CCEE, reflection point');\par
+    icall := icall + 1;\par
+\par
+//## BH #############################################################################################################\par
+    BH(cdsEntrada, cdsResults_Lambda, cdsResults_Kb, cdsResults_Kss, cdsResults_Kcr, strP5, Hydrograph, graphAmin, graphAmax, graphAmed, graphKs, graphP, End_Time, Timestep);\par
+//## BH #############################################################################################################\par
+\par
+    cdsResults.Edit;\par
+    cdsResults.Fields [0].Value := icall;\par
+    cdsResults.Fields [14].Value := formatfloat('###,###,##0.0000', RMSE);\par
+    cdsResults.Fields [15].Value := formatfloat('###,###,##0.0000', Nash);\par
+    cdsResults.Fields [16].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+    cdsResults.Fields [17].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+    cdsResults.UpdateRecord;\par
+\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           cdsResults_Lambda.Edit;\par
+           cdsResults_Lambda.Fields [0].Value := icall;\par
+           cdsResults_Lambda.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+           cdsResults_Lambda.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+           cdsResults_Lambda.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+           cdsResults_Lambda.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+           cdsResults_Lambda.UpdateRecord;\par
+       End;\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           cdsResults_Kb.Edit;\par
+           cdsResults_Kb.Fields [0].Value := icall;\par
+           cdsResults_Kb.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+           cdsResults_Kb.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+           cdsResults_Kb.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+           cdsResults_Kb.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+           cdsResults_Kb.UpdateRecord;\par
+       End;\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           cdsResults_Kss.Edit;\par
+           cdsResults_Kss.Fields [0].Value := icall;\par
+           cdsResults_Kss.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+           cdsResults_Kss.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+           cdsResults_Kss.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+           cdsResults_Kss.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+           cdsResults_Kss.UpdateRecord;\par
+       End;\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           cdsResults_Kcr.Edit;\par
+           cdsResults_Kcr.Fields [0].Value := icall;\par
+           cdsResults_Kcr.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+           cdsResults_Kcr.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+           cdsResults_Kcr.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+           cdsResults_Kcr.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+           cdsResults_Kcr.UpdateRecord;\par
+       End;\par
+\par
+    fnew_L := Objective_Function;\par
+    If Calibrate_Lambda_DT = True Then fnew_Lambda := Objective_Function;\par
+    If Calibrate_Kb_DT = True Then fnew_Kb := Objective_Function;\par
+    If Calibrate_Kss_DT = True Then fnew_Kss := Objective_Function;\par
+    If Calibrate_Kcap_DT = True Then fnew_Kcr := Objective_Function;\par
+\par
+    L := L + 1;\par
+    If Encerrar = 1 Then\par
+       goto Fim;\par
+    // Check if is outside the bounds\par
+\par
+    //Reflection failed; now attempt a contraction point\par
+    If fnew_L > fw_L Then\par
+       Begin\par
+           snew_L := nil;\par
+           Setlength(snew_L, m);\par
+\par
+           If Calibrate_Lambda_DT = True Then\par
+              Begin\par
+                  snew_Lambda := nil;\par
+                  SetLength (snew_Lambda, Number_subwatersheds);\par
+              End;\par
+           If Calibrate_Kb_DT = True Then\par
+              Begin\par
+                  snew_Kb := nil;\par
+                  SetLength (snew_Kb, Number_subwatersheds);\par
+              End;\par
+           If Calibrate_Kss_DT = True Then\par
+              Begin\par
+                  snew_Kss := nil;\par
+                  SetLength (snew_Kss, Number_subwatersheds);\par
+              End;\par
+           If Calibrate_Kcap_DT = True Then\par
+              Begin\par
+                  snew_Kcr := nil;\par
+                  SetLength (snew_Kcr, Number_subwatersheds);\par
+              End;\par
+\par
+           //ShowMessage('Reflection failed; now attempt a contraction point!');\par
+           cdsResults.Append;\par
+           For Cont_m5 := 1 to m do\par
+              Begin\par
+                  snew_L [Cont_m5 - 1] := sw_L [Cont_m5 - 1] + b * (ce_L [Cont_m5 - 1] - sw_L [Cont_m5 - 1]);\par
+                  cdsResults.Fields [Cont_m5].Value := formatfloat('###,###,##0.0000', snew_L [Cont_m5 - 1]);\par
+              End;\par
+\par
+           If Calibrate_Lambda_DT = True Then cdsResults_Lambda.Append;\par
+           If Calibrate_Kb_DT = True Then cdsResults_Kb.Append;\par
+           If Calibrate_Kss_DT = True Then cdsResults_Kss.Append;\par
+           If Calibrate_Kcap_DT = True Then cdsResults_Kcr.Append;\par
+           For Cont_m5 := 1 to Number_subwatersheds do\par
+              Begin\par
+                  If Calibrate_Lambda_DT = True Then\par
+                     Begin\par
+                         snew_Lambda [Cont_m5 - 1] := sw_Lambda [Cont_m5 - 1] + b * (ce_Lambda [Cont_m5 - 1] - sw_Lambda [Cont_m5 - 1]);\par
+                         cdsResults_Lambda.Fields [Cont_m5].Value := formatfloat('###,###,##0.0000', snew_Lambda [Cont_m5 - 1]);\par
+                     End;\par
+                  If Calibrate_Kb_DT = True Then\par
+                     Begin\par
+                         snew_Kb [Cont_m5 - 1] := sw_Kb [Cont_m5 - 1] + b * (ce_Kb [Cont_m5 - 1] - sw_Kb [Cont_m5 - 1]);\par
+                         cdsResults_Kb.Fields [Cont_m5].Value := formatfloat('###,###,##0.0000', snew_Kb [Cont_m5 - 1]);\par
+                     End;\par
+                  If Calibrate_Kss_DT = True Then\par
+                     Begin\par
+                         snew_Kss [Cont_m5 - 1] := sw_Kss [Cont_m5 - 1] + b * (ce_Kss [Cont_m5 - 1] - sw_Kss [Cont_m5 - 1]);\par
+                         cdsResults_Kss.Fields [Cont_m5].Value := formatfloat('###,###,##0.0000', snew_Kss [Cont_m5 - 1]);\par
+                     End;\par
+                  If Calibrate_Kcap_DT = True Then\par
+                     Begin\par
+                         snew_Kcr [Cont_m5 - 1] := sw_Kcr [Cont_m5 - 1] + b * (ce_Kcr [Cont_m5 - 1] - sw_Kcr [Cont_m5 - 1]);\par
+                         cdsResults_Kcr.Fields [Cont_m5].Value := formatfloat('###,###,##0.0000', snew_Kcr [Cont_m5 - 1]);\par
+                     End;\par
+              End;\par
+\par
+           If cdsParameter.Locate('Parameter', 'IVSMC', [loCaseInsensitive]) = True Then\par
+              Percentage_Am := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Kb', [loCaseInsensitive]) = True Then\par
+              Kb := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Kss', [loCaseInsensitive]) = True Then\par
+              Kss := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Kcap', [loCaseInsensitive]) = True Then\par
+              Kcap := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Lambda', [loCaseInsensitive]) = True Then\par
+              Lambda := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Cs', [loCaseInsensitive]) = True Then\par
+              Cs := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Css', [loCaseInsensitive]) = True Then\par
+              Css := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Cbase', [loCaseInsensitive]) = True Then\par
+              Cbase := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Ac', [loCaseInsensitive]) = True Then\par
+              Ac := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Acc', [loCaseInsensitive]) = True Then\par
+              Acc := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'Acr', [loCaseInsensitive]) = True Then\par
+              Acr := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'AL', [loCaseInsensitive]) = True Then\par
+              AL := snew_L [cdsParameter.RecNo - 1];\par
+           If cdsParameter.Locate('Parameter', 'PS', [loCaseInsensitive]) = True Then\par
+              Pr := snew_L [cdsParameter.RecNo - 1];\par
+\par
+           //ShowMessage('CCEE, contraction point');\par
+           icall := icall + 1;\par
+\par
+//## BH #############################################################################################################\par
+           BH(cdsEntrada, cdsResults_Lambda, cdsResults_Kb, cdsResults_Kss, cdsResults_Kcr, strP5, Hydrograph, graphAmin, graphAmax, graphAmed, graphKs, graphP, End_Time, Timestep);\par
+//## BH #############################################################################################################\par
+\par
+           cdsResults.Edit;\par
+           cdsResults.Fields [0].Value := icall;\par
+           cdsResults.Fields [14].Value := formatfloat('###,###,##0.0000', RMSE);\par
+           cdsResults.Fields [15].Value := formatfloat('###,###,##0.0000', Nash);\par
+           cdsResults.Fields [16].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+           cdsResults.Fields [17].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+           cdsResults.UpdateRecord;\par
+\par
+           If Calibrate_Lambda_DT = True Then\par
+              Begin\par
+                  cdsResults_Lambda.Edit;\par
+                  cdsResults_Lambda.Fields [0].Value := icall;\par
+                  cdsResults_Lambda.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                  cdsResults_Lambda.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                  cdsResults_Lambda.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                  cdsResults_Lambda.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+                  cdsResults_Lambda.UpdateRecord;\par
+              End;\par
+           If Calibrate_Kb_DT = True Then\par
+              Begin\par
+                  cdsResults_Kb.Edit;\par
+                  cdsResults_Kb.Fields [0].Value := icall;\par
+                  cdsResults_Kb.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                  cdsResults_Kb.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                  cdsResults_Kb.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                  cdsResults_Kb.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+                  cdsResults_Kb.UpdateRecord;\par
+              End;\par
+           If Calibrate_Kss_DT = True Then\par
+              Begin\par
+                  cdsResults_Kss.Edit;\par
+                  cdsResults_Kss.Fields [0].Value := icall;\par
+                  cdsResults_Kss.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                  cdsResults_Kss.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                  cdsResults_Kss.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                  cdsResults_Kss.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+                  cdsResults_Kss.UpdateRecord;\par
+              End;\par
+           If Calibrate_Kcap_DT = True Then\par
+              Begin\par
+                  cdsResults_Kcr.Edit;\par
+                  cdsResults_Kcr.Fields [0].Value := icall;\par
+                  cdsResults_Kcr.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                  cdsResults_Kcr.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                  cdsResults_Kcr.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                  cdsResults_Kcr.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+                  cdsResults_Kcr.UpdateRecord;\par
+              End;\par
+\par
+\par
+           fnew_L := Objective_Function;\par
+           If Calibrate_Lambda_DT = True Then fnew_Lambda := Objective_Function;\par
+           If Calibrate_Kb_DT = True Then fnew_Kb := Objective_Function;\par
+           If Calibrate_Kss_DT = True Then fnew_Kss := Objective_Function;\par
+           If Calibrate_Kcap_DT = True Then fnew_Kcr := Objective_Function;\par
+\par
+           L := L + 1;\par
+           If Encerrar = 1 Then\par
+              goto Fim;\par
+    //Reflection failed; now attempt a contraction point\par
+           // Both reflection and contraction have failed, attempt a random point\par
+           Contador_Random := 0;\par
+           If fnew_L > fw_L Then\par
+             Begin\par
+                 Inc (Contador_Random, 1);\par
+                 snew_L := nil;\par
+                 Setlength (snew_L, m);\par
+\par
+                 If Calibrate_Lambda_DT = True Then\par
+                    Begin\par
+                        snew_Lambda := nil;\par
+                        SetLength (snew_Lambda, Number_subwatersheds);\par
+                    End;\par
+                 If Calibrate_Kb_DT = True Then\par
+                    Begin\par
+                        snew_Kb := nil;\par
+                        SetLength (snew_Kb, Number_subwatersheds);\par
+                    End;\par
+                 If Calibrate_Kss_DT = True Then\par
+                    Begin\par
+                        snew_Kss:= nil;\par
+                        SetLength (snew_Kss, Number_subwatersheds);\par
+                    End;\par
+                 If Calibrate_Kcap_DT = True Then\par
+                    Begin\par
+                        snew_Kcr := nil;\par
+                        SetLength (snew_Kcr, Number_subwatersheds);\par
+                    End;\par
+\par
+                 //ShowMessage('Random point!');\par
+                 cdsResults.Append;\par
+                 For Cont_m6 := 1 to m do\par
+                    Begin\par
+                        snew_L [Cont_m6 - 1] := bl_L [Cont_m6 - 1] + Random * (bu_L [Cont_m6 - 1] - bl_L [Cont_m6 - 1]);\par
+                        cdsResults.Fields [Cont_m6].Value := formatfloat('###,###,##0.0000', snew_L [Cont_m6 - 1]);\par
+                    End;\par
+\par
+                 If Calibrate_Lambda_DT = True Then cdsResults_Lambda.Append;\par
+                 If Calibrate_Kb_DT = True Then cdsResults_Kb.Append;\par
+                 If Calibrate_Kss_DT = True Then cdsResults_Kss.Append;\par
+                 If Calibrate_Kcap_DT = True Then cdsResults_Kcr.Append;\par
+                 For Cont_m6 := 1 to Number_subwatersheds do\par
+                    Begin\par
+                        If cdsParameters_Distribuido.Locate('Parameter', 'Lambda', [loCaseInsensitive]) = True Then\par
+                           Begin\par
+                               snew_Lambda [Cont_m6 - 1] := bl_DT [cdsParameters_Distribuido.RecNo - 1] + Random * (bu_DT [cdsParameters_Distribuido.RecNo - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1]);\par
+                               cdsResults_Lambda.Fields [Cont_m6].Value := formatfloat('###,###,##0.0000', snew_Lambda [Cont_m6 - 1]);\par
+                           End;\par
+                        If cdsParameters_Distribuido.Locate('Parameter', 'Kb', [loCaseInsensitive]) = True Then\par
+                           Begin\par
+                               snew_Kb [Cont_m6 - 1] := bl_DT [cdsParameters_Distribuido.RecNo - 1] + Random * (bu_DT [cdsParameters_Distribuido.RecNo - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1]);\par
+                               cdsResults_Kb.Fields [Cont_m6].Value := formatfloat('###,###,##0.0000', snew_Kb [Cont_m6 - 1]);\par
+                           End;\par
+                        If cdsParameters_Distribuido.Locate('Parameter', 'Kss', [loCaseInsensitive]) = True Then\par
+                           Begin\par
+                               snew_Kss [Cont_m6 - 1] := bl_DT [cdsParameters_Distribuido.RecNo - 1] + Random * (bu_DT [cdsParameters_Distribuido.RecNo - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1]);\par
+                               cdsResults_Kss.Fields [Cont_m6].Value := formatfloat('###,###,##0.0000', snew_Kss [Cont_m6 - 1]);\par
+                           End;\par
+                        If cdsParameters_Distribuido.Locate('Parameter', 'Kcap', [loCaseInsensitive]) = True Then\par
+                           Begin\par
+                               snew_Kcr [Cont_m6 - 1] := bl_DT [cdsParameters_Distribuido.RecNo - 1] + Random * (bu_DT [cdsParameters_Distribuido.RecNo - 1] - bl_DT [cdsParameters_Distribuido.RecNo - 1]);\par
+                               cdsResults_Kcr.Fields [Cont_m6].Value := formatfloat('###,###,##0.0000', snew_Kcr [Cont_m6 - 1]);\par
+                           End;\par
+                    End;\par
+\par
+                 If cdsParameter.Locate('Parameter', 'IVSMC', [loCaseInsensitive]) = True Then\par
+                    Percentage_Am := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Kb', [loCaseInsensitive]) = True Then\par
+                    Kb := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Kss', [loCaseInsensitive]) = True Then\par
+                    Kss := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Kcap', [loCaseInsensitive]) = True Then\par
+                    Kcap := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Lambda', [loCaseInsensitive]) = True Then\par
+                    Lambda := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Cs', [loCaseInsensitive]) = True Then\par
+                    Cs := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Css', [loCaseInsensitive]) = True Then\par
+                    Css := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Cbase', [loCaseInsensitive]) = True Then\par
+                    Cbase := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Ac', [loCaseInsensitive]) = True Then\par
+                    Ac := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Acc', [loCaseInsensitive]) = True Then\par
+                    Acc := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'Acr', [loCaseInsensitive]) = True Then\par
+                    Acr := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'AL', [loCaseInsensitive]) = True Then\par
+                    AL := snew_L [cdsParameter.RecNo - 1];\par
+                 If cdsParameter.Locate('Parameter', 'PS', [loCaseInsensitive]) = True Then\par
+                    Pr := snew_L [cdsParameter.RecNo - 1];\par
+\par
+                 //ShowMessage('CCEE, RANDOM point');\par
+                 icall := icall + 1;\par
+\par
+//## BH #############################################################################################################\par
+                 BH(cdsEntrada, cdsResults_Lambda, cdsResults_Kb, cdsResults_Kss, cdsResults_Kcr, strP5, Hydrograph, graphAmin, graphAmax, graphAmed, graphKs, graphP, End_Time, Timestep);\par
+//## BH #############################################################################################################\par
+\par
+                 cdsResults.Edit;\par
+                 cdsResults.Fields [0].Value := icall;\par
+                 cdsResults.Fields [14].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                 cdsResults.Fields [15].Value := formatfloat('###,###,##0.0000', Nash);\par
+                 cdsResults.Fields [16].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                 cdsResults.Fields [17].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+                 cdsResults.UpdateRecord;\par
+\par
+                 If Calibrate_Lambda_DT = True Then\par
+                    Begin\par
+                        cdsResults_Lambda.Edit;\par
+                        cdsResults_Lambda.Fields [0].Value := icall;\par
+                        cdsResults_Lambda.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                        cdsResults_Lambda.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                        cdsResults_Lambda.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                        cdsResults_Lambda.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+                        cdsResults_Lambda.UpdateRecord;\par
+                    End;\par
+                 If Calibrate_Kb_DT = True Then\par
+                    Begin\par
+                        cdsResults_Kb.Edit;\par
+                        cdsResults_Kb.Fields [0].Value := icall;\par
+                        cdsResults_Kb.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                        cdsResults_Kb.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                        cdsResults_Kb.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                        cdsResults_Kb.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+                        cdsResults_Kb.UpdateRecord;\par
+                    End;\par
+                 If Calibrate_Kss_DT = True Then\par
+                    Begin\par
+                        cdsResults_Kss.Edit;\par
+                        cdsResults_Kss.Fields [0].Value := icall;\par
+                        cdsResults_Kss.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                        cdsResults_Kss.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                        cdsResults_Kss.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                        cdsResults_Kss.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+                        cdsResults_Kss.UpdateRecord;\par
+                    End;\par
+                 If Calibrate_Kcap_DT = True Then\par
+                    Begin\par
+                        cdsResults_Kcr.Edit;\par
+                        cdsResults_Kcr.Fields [0].Value := icall;\par
+                        cdsResults_Kcr.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                        cdsResults_Kcr.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                        cdsResults_Kcr.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                        cdsResults_Kcr.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+                        cdsResults_Kcr.UpdateRecord;\par
+                    End;\par
+\par
+\par
+                 fnew_L := Objective_Function;\par
+                 If Calibrate_Lambda_DT = True Then fnew_Lambda := Objective_Function;\par
+                 If Calibrate_Kb_DT = True Then fnew_Kb := Objective_Function;\par
+                 If Calibrate_Kss_DT = True Then fnew_Kss := Objective_Function;\par
+                 If Calibrate_Kcap_DT = True Then fnew_Kcr := Objective_Function;\par
+                 \par
+                 L := L + 1;\par
+                 If Encerrar = 1 Then\par
+                    goto Fim;\par
+             End;//If fnew > fw Then\par
+    // Both reflection and contraction have failed, attempt a random point\par
+       End;//If fnew > fw Then\par
+    Fim:\par
+       //ShowMessage('Reflection point!');\par
+End;\par
+//############################################## CCEUA - FIM #####################################################################\par
+//################################################################################################################################\par
+\par
+//############################################## SCE - IN\'cdCIO ####################################################################\par
+//################################################################################################################################\par
+function SCE(cdsEntrada, cdsParameter, cdsParameters_Distribuido, cdsResults, cdsResults_Lambda, cdsResults_Kb, cdsResults_Kss, cdsResults_Kcr : TClientDataSet; strP5 : TStringGrid; Hydrograph, graphAmin, graphAmax, graphAmed, graphKs, graphP :TChart; maxn : Integer) : Double;\par
+Var\par
+   nspl, mings, npt : Integer;\par
+   igs, k1, k2, k3, iter, lpos : Integer;\par
+   Bound_L, Bound_DT : Array of Double;\par
+   X_L, Xf_L, X_Lambda, Xf_Lambda, X_Kb, Xf_Kb, X_Kss, Xf_Kss, X_Kcr, Xf_Kcr : Array of Array of Double;\par
+   BestX_L, WorstX_L, BestX_Lambda, WorstX_Lambda, BestX_Kb, WorstX_Kb, BestX_Kss, WorstX_Kss, BestX_Kcr, WorstX_Kcr : Array of Double;\par
+   Bestf, Worstf, gnrng : Double;\par
+   Matrix_Par1, Matrix_Par2, Matrix_Par3 : Array of Double;\par
+   xnstd, Matrix_gnrng : Array of Double;\par
+   cx_L, cf_L, cx_Lambda, cf_Lambda, cx_Kb, cf_Kb, cx_Kss, cf_Kss, cx_Kcr, cf_Kcr : Array of Array of Double;\par
+   lcs : Array of Integer;\par
+   Cont_Alpha_SCE, loop_nps1, loop_nps2,\par
+   loop_nopt1, loop_nopt2, loop_nopt3, loop_nopt4,\par
+   loop_nopt5, loop_nopt6, loop_nopt7, loop_nopt8,\par
+   loop_nopt9, loop_nopt10, loop_nopt11,\par
+   loop_nopt12, loop_nopt13, loop_nopt14, loop_npt1,\par
+   loop_npt2, loop_npt3, loop_npt4, loop_npt5,\par
+   loop_npt6, loop_npg1, loop_npg2 : Integer;\par
+Begin\par
+    L := 0; //contador para escrever o valor de RMSE na matriz\par
+    icall := 0;\par
+    nloop := 0;\par
+    \par
+    If npg = 0 Then  // number of members in a complex\par
+       //npg := (2 * nopt) + 1\par
+       npg := 59\par
+    Else\par
+       npg := npg;\par
+\par
+    If nps = 0 Then  // number of members in a simplex\par
+       //nps := nopt + 1\par
+       nps := 30\par
+    Else\par
+       nps := nps;\par
+\par
+    If pmin = 0 Then// minimum number of complexes required during the optimization process\par
+       mings := ngs\par
+    Else\par
+       mings := pmin;\par
+\par
+    If Beta = 0 Then// Beta --> number of evolution steps for each complex before shuffling\par
+       //nspl := npg\par
+       nspl := 59\par
+    Else\par
+       nspl := Beta;\par
+\par
+    If Alpha_SCE = 0 Then // Alpha --> number of consecutive offspring generated by the same subcomplex\par
+       Alpha_SCE := 1\par
+    Else\par
+       Alpha_SCE := Alpha_SCE;\par
+\par
+    npt := npg * ngs;      // sample size\par
+\par
+    Bound_L := nil;\par
+    SetLength (Bound_L, nopt_L);\par
+\par
+    Bound_DT := nil;\par
+    SetLength (Bound_DT, nopt_DT);\par
+    \par
+    RMSE_matriz := nil;\par
+    SetLength (RMSE_matriz, npt);\par
+\par
+    For loop_nopt1 := 1 to nopt_L  do\par
+       Bound_L [(loop_nopt1 - 1)] := bu_L [(loop_nopt1 - 1)] - bl_L [(loop_nopt1 - 1)];\par
+\par
+    For loop_nopt1 := 1 to nopt_DT do\par
+       Bound_DT [(loop_nopt1 - 1)] := bu_DT [(loop_nopt1 - 1)] - bl_DT [(loop_nopt1 - 1)];\par
+\par
+    X_L := nil;\par
+    SetLength (X_L, npt, nopt_L);\par
+    Xf_L := nil;\par
+    SetLength (Xf_L, npt, (nopt_L + 1));\par
+    Parameters_L := nil;\par
+    SetLength (Parameters_L, npt, nopt_L);\par
+\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           X_Lambda := nil;\par
+           SetLength (X_Lambda, npt, Number_subwatersheds);\par
+           Xf_Lambda := nil;\par
+           SetLength (Xf_Lambda, npt, (Number_subwatersheds + 1));\par
+           Parameters_Lambda := nil;\par
+           SetLength (Parameters_Lambda, npt, Number_subwatersheds);\par
+       End;\par
+\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           X_Kb := nil;\par
+           SetLength (X_Kb, npt, Number_subwatersheds);\par
+           Xf_Kb := nil;\par
+           SetLength (Xf_Kb, npt, (Number_subwatersheds + 1));\par
+           Parameters_Kb := nil;\par
+           SetLength (Parameters_Kb, npt, Number_subwatersheds);\par
+       End;\par
+\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           X_Kss := nil;\par
+           SetLength (X_Kss, npt, Number_subwatersheds);\par
+           Xf_Kss := nil;\par
+           SetLength (Xf_Kss, npt, (Number_subwatersheds + 1));\par
+           Parameters_Kss := nil;\par
+           SetLength (Parameters_Kss, npt, Number_subwatersheds);\par
+       End;\par
+\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           X_Kcr := nil;\par
+           SetLength (X_Kcr, npt, Number_subwatersheds);\par
+           Xf_Kcr := nil;\par
+           SetLength (Xf_Kcr, npt, (Number_subwatersheds + 1));\par
+           Parameters_Kcr := nil;\par
+           SetLength (Parameters_Kcr, npt, Number_subwatersheds);\par
+       End;\par
+\par
+    Randomize;\par
+\par
+    For loop_npt1 := 1 to npt do\par
+       Begin\par
+           cdsResults.Append;\par
+           For loop_nopt2 := 1 to nopt_L do\par
+             Begin\par
+                 X_L [(loop_npt1 - 1), (loop_nopt2 - 1)] := bl_L [(loop_nopt2 - 1)] + random * Bound_L [(loop_nopt2 - 1)];\par
+                 Xf_L [(loop_npt1 - 1), (loop_nopt2 - 1)] := X_L [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                 Parameters_L [(loop_npt1 - 1), (loop_nopt2 - 1)] := Xf_L [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                 cdsResults.Fields [loop_nopt2].Value := formatfloat('###,###,##0.0000', Parameters_L [(loop_npt1 - 1), (loop_nopt2 - 1)]);\par
+             End;\par
+           cdsResults.UpdateRecord;\par
+\par
+           If Calibrate_Lambda_DT = True Then cdsResults_Lambda.Append;\par
+           If Calibrate_Kb_DT = True Then cdsResults_Kb.Append;\par
+           If Calibrate_Kss_DT = True Then cdsResults_Kss.Append;\par
+           If Calibrate_Kcap_DT = True Then cdsResults_Kcr.Append;\par
+           For loop_nopt2 := 1 to Number_subwatersheds do\par
+             Begin\par
+                 If cdsParameters_Distribuido.Locate('Parameter', 'Lambda', [loCaseInsensitive]) = True Then\par
+                    Begin\par
+                        X_Lambda [(loop_npt1 - 1), (loop_nopt2 - 1)] := bl_DT [(cdsParameters_Distribuido.RecNo - 1)] + random * Bound_DT [(cdsParameters_Distribuido.RecNo - 1)];\par
+                        Xf_Lambda [(loop_npt1 - 1), (loop_nopt2 - 1)] := X_Lambda [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                        Parameters_Lambda [(loop_npt1 - 1), (loop_nopt2 - 1)] := Xf_Lambda [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                        cdsResults_Lambda.Fields [loop_nopt2].Value := formatfloat('###,###,##0.0000', Parameters_Lambda [(loop_npt1 - 1), (loop_nopt2 - 1)]);\par
+                    End;\par
+                 If cdsParameters_Distribuido.Locate('Parameter', 'Kb', [loCaseInsensitive]) = True Then\par
+                    Begin\par
+                        X_Kb [(loop_npt1 - 1), (loop_nopt2 - 1)] := bl_DT [(cdsParameters_Distribuido.RecNo - 1)] + random * Bound_DT [(cdsParameters_Distribuido.RecNo - 1)];\par
+                        Xf_Kb [(loop_npt1 - 1), (loop_nopt2 - 1)] := X_Kb [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                        Parameters_Kb [(loop_npt1 - 1), (loop_nopt2 - 1)] := Xf_Kb [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                        cdsResults_Kb.Fields [loop_nopt2].Value := formatfloat('###,###,##0.0000', Parameters_Kb [(loop_npt1 - 1), (loop_nopt2 - 1)]);\par
+                    End;\par
+                 If cdsParameters_Distribuido.Locate('Parameter', 'Kss', [loCaseInsensitive]) = True Then\par
+                    Begin\par
+                        X_Kss [(loop_npt1 - 1), (loop_nopt2 - 1)] := bl_DT [(cdsParameters_Distribuido.RecNo - 1)] + random * Bound_DT [(cdsParameters_Distribuido.RecNo - 1)];\par
+                        Xf_Kss [(loop_npt1 - 1), (loop_nopt2 - 1)] := X_Kss [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                        Parameters_Kss [(loop_npt1 - 1), (loop_nopt2 - 1)] := Xf_Kss [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                        cdsResults_Kss.Fields [loop_nopt2].Value := formatfloat('###,###,##0.0000', Parameters_Kss [(loop_npt1 - 1), (loop_nopt2 - 1)]);\par
+                    End;\par
+                 If cdsParameters_Distribuido.Locate('Parameter', 'Kcap', [loCaseInsensitive]) = True Then\par
+                    Begin\par
+                        X_Kcr [(loop_npt1 - 1), (loop_nopt2 - 1)] := bl_DT [(cdsParameters_Distribuido.RecNo - 1)] + random * Bound_DT [(cdsParameters_Distribuido.RecNo - 1)];\par
+                        Xf_Kcr [(loop_npt1 - 1), (loop_nopt2 - 1)] := X_Kcr [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                        Parameters_Kcr [(loop_npt1 - 1), (loop_nopt2 - 1)] := Xf_Kcr [(loop_npt1 - 1), (loop_nopt2 - 1)];\par
+                        cdsResults_Kcr.Fields [loop_nopt2].Value := formatfloat('###,###,##0.0000', Parameters_Kcr [(loop_npt1 - 1), (loop_nopt2 - 1)]);\par
+                    End;\par
+             End;\par
+           If Calibrate_Lambda_DT = True Then cdsResults_Lambda.UpdateRecord;\par
+           If Calibrate_Kb_DT = True Then cdsResults_Kb.UpdateRecord;\par
+           If Calibrate_Kss_DT = True Then cdsResults_Kss.UpdateRecord;\par
+           If Calibrate_Kcap_DT = True Then cdsResults_Kcr.UpdateRecord;\par
+       End;\par
+\par
+    \{cdsResults.Edit;\par
+    cdsResults.Refresh;\}\par
+    cdsResults.First;\par
+    If Calibrate_Lambda_DT = True Then cdsResults_Lambda.First;\par
+    If Calibrate_Kb_DT = True Then cdsResults_Kb.First;\par
+    If Calibrate_Kss_DT = True Then cdsResults_Kss.First;\par
+    If Calibrate_Kcap_DT = True Then cdsResults_Kcr.First;\par
+    For loop_npt2 := 1 to npt do\par
+       Begin\par
+           If cdsParameter.Locate('Parameter', 'IVSMC', [loCaseInsensitive]) = True Then\par
+              Percentage_Am := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Kb', [loCaseInsensitive]) = True Then\par
+              Kb := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Kss', [loCaseInsensitive]) = True Then\par
+              Kss := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Kcap', [loCaseInsensitive]) = True Then\par
+              Kcap := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Lambda', [loCaseInsensitive]) = True Then\par
+              Lambda := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Cs', [loCaseInsensitive]) = True Then\par
+              Cs := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Css', [loCaseInsensitive]) = True Then\par
+              Css := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Cbase', [loCaseInsensitive]) = True Then\par
+              Cbase := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Ac', [loCaseInsensitive]) = True Then\par
+              Ac := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Acc', [loCaseInsensitive]) = True Then\par
+              Acc := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'Acr', [loCaseInsensitive]) = True Then\par
+              Acr := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'AL', [loCaseInsensitive]) = True Then\par
+              AL := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           If cdsParameter.Locate('Parameter', 'PS', [loCaseInsensitive]) = True Then\par
+              Pr := X_L [(loop_npt2 - 1), (cdsParameter.RecNo - 1)];\par
+           \{ShowMessage('Lambda =' + FloatToStr (Lambda));\par
+           ShowMessage('Kb =' + FloatToStr (Kb));\par
+           ShowMessage('Kss =' + FloatToStr (Kss));\par
+           ShowMessage('Kcap =' + FloatToStr (Kcap));\par
+           ShowMessage('Cs =' + FloatToStr (Cs));\par
+           ShowMessage('Css =' + FloatToStr (Css));\}\par
+           icall := icall + 1;\par
+\par
+           //ShowMessage ('Ate aqui nao deu erro!');\par
+//## BH #############################################################################################################\par
+           BH(cdsEntrada, cdsResults_Lambda, cdsResults_Kb, cdsResults_Kss, cdsResults_Kcr, strP5, Hydrograph, graphAmin, graphAmax, graphAmed, graphKs, graphP, End_Time, Timestep);\par
+//## BH #############################################################################################################\par
+           //ShowMessage ('Ate aqui nao deu erro!');\par
+\par
+           cdsResults.Edit;\par
+           cdsResults.Fields [0].Value := icall;\par
+           cdsResults.Fields [14].Value := formatfloat('###,###,##0.0000', RMSE);\par
+           cdsResults.Fields [15].Value := formatfloat('###,###,##0.0000', Nash);\par
+           cdsResults.Fields [16].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+           cdsResults.Fields [17].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+           //cdsResults.Fields [18].Value := formatfloat('###,###,##0.0000', R2);\par
+\par
+           If Calibrate_Lambda_DT = True Then\par
+              Begin\par
+                  cdsResults_Lambda.Edit;\par
+                  cdsResults_Lambda.Fields [0].Value := icall;\par
+                  cdsResults_Lambda.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                  cdsResults_Lambda.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                  cdsResults_Lambda.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                  cdsResults_Lambda.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+              End;\par
+\par
+           If Calibrate_Kb_DT = True Then\par
+              Begin\par
+                  cdsResults_Kb.Edit;\par
+                  cdsResults_Kb.Fields [0].Value := icall;\par
+                  cdsResults_Kb.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                  cdsResults_Kb.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                  cdsResults_Kb.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                  cdsResults_Kb.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+              End;\par
+\par
+           If Calibrate_Kss_DT = True Then\par
+              Begin\par
+                  cdsResults_Kss.Edit;\par
+                  cdsResults_Kss.Fields [0].Value := icall;\par
+                  cdsResults_Kss.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                  cdsResults_Kss.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                  cdsResults_Kss.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                  cdsResults_Kss.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+              End;\par
+\par
+           If Calibrate_Kcap_DT = True Then\par
+              Begin\par
+                  cdsResults_Kcr.Edit;\par
+                  cdsResults_Kcr.Fields [0].Value := icall;\par
+                  cdsResults_Kcr.Fields [Number_subwatersheds + 1].Value := formatfloat('###,###,##0.0000', RMSE);\par
+                  cdsResults_Kcr.Fields [Number_subwatersheds + 2].Value := formatfloat('###,###,##0.0000', Nash);\par
+                  cdsResults_Kcr.Fields [Number_subwatersheds + 3].Value := formatfloat('###,###,##0.0000', Nash_log);\par
+                  cdsResults_Kcr.Fields [Number_subwatersheds + 4].Value := formatfloat('###,###,##0.0000', DeltaV);\par
+              End;\par
+\par
+           Xf_L [(loop_npt2 - 1), nopt_L] := Objective_Function;\par
+           If Calibrate_Lambda_DT = True Then Xf_Lambda [(loop_npt2 - 1), Number_subwatersheds] := Objective_Function;\par
+           If Calibrate_Kb_DT = True Then Xf_Kb [(loop_npt2 - 1), Number_subwatersheds] := Objective_Function;\par
+           If Calibrate_Kss_DT = True Then Xf_Kss [(loop_npt2 - 1), Number_subwatersheds] := Objective_Function;\par
+           If Calibrate_Kcap_DT = True Then Xf_Kcr [(loop_npt2 - 1), Number_subwatersheds] := Objective_Function;\par
+\par
+           cdsResults.UpdateRecord;\par
+           If Calibrate_Lambda_DT = True Then cdsResults_Lambda.UpdateRecord;\par
+           If Calibrate_Kb_DT = True Then cdsResults_Kb.UpdateRecord;\par
+           If Calibrate_Kss_DT = True Then cdsResults_Kss.UpdateRecord;\par
+           If Calibrate_Kcap_DT = True Then cdsResults_Kcr.UpdateRecord;\par
+\par
+           //cdsResults.Refresh;\par
+           cdsResults.Next;\par
+           If Calibrate_Lambda_DT = True Then cdsResults_Lambda.Next;\par
+           If Calibrate_Kb_DT = True Then cdsResults_Kb.Next;\par
+           If Calibrate_Kss_DT = True Then cdsResults_Kss.Next;\par
+           If Calibrate_Kcap_DT = True Then cdsResults_Kcr.Next;\par
+\par
+           L := L + 1; // adiciona 1 linha na matriz de RMSE\par
+\par
+           If Encerrar = 1 Then\par
+              Break;\par
+       End;//For loop_npt2 := 1 to npt do\par
+\par
+    // Ordenar matriz Xf\par
+    matriz_ordenar := nil;\par
+    SetLength(matriz_ordenar, npt, (nopt_L + 1));\par
+\par
+    For loop_npt3 := 1 to npt do\par
+       Begin\par
+           For loop_nopt3 := 1 to nopt_L do\par
+              matriz_ordenar[(loop_npt3 - 1), (loop_nopt3 - 1)] := Xf_L [(loop_npt3 - 1), (loop_nopt3 - 1)];\par
+           matriz_ordenar[(loop_npt3 - 1), nopt_L] := Xf_L [(loop_npt3 - 1), nopt_L];\par
+       End;\par
+\par
+    QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (nopt_L + 1), nopt_L);\par
+    Xf_L := nil;\par
+    SetLength (Xf_L, npt, (nopt_L + 1));\par
+\par
+    For loop_npt4 := 1 to npt do\par
+       For loop_nopt4 := 0 to nopt_L do\par
+           Xf_L[(loop_npt4 - 1), loop_nopt4] := matriz_ordenar [(loop_npt4 - 1), loop_nopt4];\par
+    // Ordenar matriz Xf\par
+\par
+    // Ordenar matriz de Lambda\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           matriz_ordenar := nil;\par
+           SetLength (matriz_ordenar, npt, (Number_subwatersheds + 1));\par
+           For loop_npt3 := 1 to npt do\par
+              Begin\par
+                  For loop_nopt3 := 1 to Number_subwatersheds do\par
+                     matriz_ordenar[(loop_npt3 - 1), (loop_nopt3 - 1)] := Xf_Lambda [(loop_npt3 - 1), (loop_nopt3 - 1)];\par
+                  matriz_ordenar[(loop_npt3 - 1), Number_subwatersheds] := Xf_Lambda [(loop_npt3 - 1), Number_subwatersheds];\par
+              End;\par
+           QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+           Xf_Lambda := nil;\par
+           SetLength (Xf_Lambda, npt, (Number_subwatersheds + 1));\par
+           For loop_npt4 := 1 to npt do\par
+              For loop_nopt4 := 0 to Number_subwatersheds do\par
+                 Xf_Lambda[(loop_npt4 - 1), loop_nopt4] := matriz_ordenar [(loop_npt4 - 1), loop_nopt4];\par
+       End;\par
+    // Ordenar matriz de Lambda\par
+\par
+    // Ordenar matriz de Kb\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           matriz_ordenar := nil;\par
+           SetLength (matriz_ordenar, npt, (Number_subwatersheds + 1));\par
+           For loop_npt3 := 1 to npt do\par
+              Begin\par
+                  For loop_nopt3 := 1 to Number_subwatersheds do\par
+                     matriz_ordenar[(loop_npt3 - 1), (loop_nopt3 - 1)] := Xf_Kb [(loop_npt3 - 1), (loop_nopt3 - 1)];\par
+                  matriz_ordenar[(loop_npt3 - 1), Number_subwatersheds] := Xf_Kb [(loop_npt3 - 1), Number_subwatersheds];\par
+              End;\par
+           QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+           Xf_Kb := nil;\par
+           SetLength (Xf_Kb, npt, (Number_subwatersheds + 1));\par
+           For loop_npt4 := 1 to npt do\par
+              For loop_nopt4 := 0 to Number_subwatersheds do\par
+                 Xf_Kb[(loop_npt4 - 1), loop_nopt4] := matriz_ordenar [(loop_npt4 - 1), loop_nopt4];\par
+       End;\par
+    // Ordenar matriz de Kb\par
+\par
+    // Ordenar matriz de Kss\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           matriz_ordenar := nil;\par
+           SetLength (matriz_ordenar, npt, (Number_subwatersheds + 1));\par
+           For loop_npt3 := 1 to npt do\par
+              Begin\par
+                  For loop_nopt3 := 1 to Number_subwatersheds do\par
+                     matriz_ordenar[(loop_npt3 - 1), (loop_nopt3 - 1)] := Xf_Kss [(loop_npt3 - 1), (loop_nopt3 - 1)];\par
+                  matriz_ordenar[(loop_npt3 - 1), Number_subwatersheds] := Xf_Kss [(loop_npt3 - 1), Number_subwatersheds];\par
+              End;\par
+           QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+           Xf_Kss := nil;\par
+           SetLength (Xf_Kss, npt, (Number_subwatersheds + 1));\par
+           For loop_npt4 := 1 to npt do\par
+              For loop_nopt4 := 0 to Number_subwatersheds do\par
+                 Xf_Kss[(loop_npt4 - 1), loop_nopt4] := matriz_ordenar [(loop_npt4 - 1), loop_nopt4];\par
+       End;\par
+    // Ordenar matriz de Kss\par
+\par
+    // Ordenar matriz de Kcr\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           matriz_ordenar := nil;\par
+           SetLength (matriz_ordenar, npt, (Number_subwatersheds + 1));\par
+              For loop_npt3 := 1 to npt do\par
+                 Begin\par
+                     For loop_nopt3 := 1 to Number_subwatersheds do\par
+                        matriz_ordenar[(loop_npt3 - 1), (loop_nopt3 - 1)] := Xf_Kcr [(loop_npt3 - 1), (loop_nopt3 - 1)];\par
+                     matriz_ordenar[(loop_npt3 - 1), Number_subwatersheds] := Xf_Kcr [(loop_npt3 - 1), Number_subwatersheds];\par
+                 End;\par
+           QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+           Xf_Kcr := nil;\par
+           SetLength (Xf_Kcr, npt, (Number_subwatersheds + 1));\par
+           For loop_npt4 := 1 to npt do\par
+              For loop_nopt4 := 0 to Number_subwatersheds do\par
+                 Xf_Kcr[(loop_npt4 - 1), loop_nopt4] := matriz_ordenar [(loop_npt4 - 1), loop_nopt4];\par
+       End;\par
+    // Ordenar matriz de Kcr\par
+\par
+\par
+    Bestf := Xf_L [0, nopt_L];\par
+    Worstf := Xf_L [(npt - 1), nopt_L];\par
+    // Monta matriz com os valor de BestX e WorstX\par
+    BestX_L := nil;\par
+    WorstX_L := nil;\par
+    SetLength (BestX_L, nopt_L);\par
+    SetLength (WorstX_L, nopt_L);\par
+\par
+    For loop_nopt5 := 1 to nopt_L do\par
+       Begin\par
+           BestX_L [(loop_nopt5 - 1)] := Xf_L [0, (loop_nopt5 - 1)];\par
+           WorstX_L [(loop_nopt5 - 1)] := Xf_L [(npt - 1), (loop_nopt5 - 1)];\par
+       End;\par
+    // Monta matriz com os valor de BestX e WorstX - FIM\par
+\par
+    // Monta matriz com os valor de BestX de Lambda, Kb, Kss e Kcr e WorstX de Lambda, Kb, Kss e Kcr\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           BestX_Lambda := nil;\par
+           WorstX_Lambda := nil;\par
+           SetLength (BestX_Lambda, Number_subwatersheds);\par
+           SetLength (WorstX_Lambda, Number_subwatersheds);\par
+       End;\par
+\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           BestX_Kb := nil;\par
+           WorstX_Kb := nil;\par
+           SetLength (BestX_Kb, Number_subwatersheds);\par
+           SetLength (WorstX_Kb, Number_subwatersheds);\par
+       End;\par
+\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           BestX_Kss := nil;\par
+           WorstX_Kss := nil;\par
+           SetLength (BestX_Kss, Number_subwatersheds);\par
+           SetLength (WorstX_Kss, Number_subwatersheds);\par
+       End;\par
+\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           BestX_Kcr := nil;\par
+           WorstX_Kcr := nil;\par
+           SetLength (BestX_Kcr, Number_subwatersheds);\par
+           SetLength (WorstX_Kcr, Number_subwatersheds);\par
+       End;\par
+\par
+    For loop_nopt5 := 1 to Number_subwatersheds do\par
+       Begin\par
+           If Calibrate_Lambda_DT = True Then\par
+              Begin\par
+                  BestX_Lambda [(loop_nopt5 - 1)] := Xf_Lambda [0, (loop_nopt5 - 1)];\par
+                  WorstX_Lambda [(loop_nopt5 - 1)] := Xf_Lambda [(npt - 1), (loop_nopt5 - 1)];\par
+              End;\par
+           If Calibrate_Kb_DT = True Then\par
+              Begin\par
+                  BestX_Kb [(loop_nopt5 - 1)] := Xf_Kb [0, (loop_nopt5 - 1)];\par
+                  WorstX_Kb [(loop_nopt5 - 1)] := Xf_Kb [(npt - 1), (loop_nopt5 - 1)];\par
+              End;\par
+           If Calibrate_Kss_DT = True Then\par
+              Begin\par
+                  BestX_Kss [(loop_nopt5 - 1)] := Xf_Kss [0, (loop_nopt5 - 1)];\par
+                  WorstX_Kss [(loop_nopt5 - 1)] := Xf_Kss [(npt - 1), (loop_nopt5 - 1)];\par
+              End;\par
+           If Calibrate_Kcap_DT = True Then\par
+              Begin\par
+                  BestX_Kcr [(loop_nopt5 - 1)] := Xf_Kcr [0, (loop_nopt5 - 1)];\par
+                  WorstX_Kcr [(loop_nopt5 - 1)] := Xf_Kcr [(npt - 1), (loop_nopt5 - 1)];\par
+              End;\par
+       End;\par
+    // Monta matriz com os valor de BestX de Lambda, Kb, Kss e Kcr e WorstX de Lambda, Kb, Kss e Kcr - FIM\par
+\par
+    // Loop on complexes (sub-populations)\par
+    cx_L := nil;\par
+    cf_L := nil;\par
+    SetLength (cx_L, npg, nopt_L);\par
+    SetLength (cf_L, npg, (nopt_L + 1));\par
+\par
+    If Calibrate_Lambda_DT = True Then\par
+       Begin\par
+           cx_Lambda := nil;\par
+           cf_Lambda := nil;\par
+           SetLength (cx_Lambda, npg, Number_subwatersheds);\par
+           SetLength (cf_Lambda, npg, (Number_subwatersheds + 1));\par
+       End;\par
+\par
+    If Calibrate_Kb_DT = True Then\par
+       Begin\par
+           cx_Kb := nil;\par
+           cf_Kb := nil;\par
+           SetLength (cx_Kb, npg, Number_subwatersheds);\par
+           SetLength (cf_Kb, npg, (Number_subwatersheds + 1));\par
+       End;\par
+\par
+    If Calibrate_Kss_DT = True Then\par
+       Begin\par
+           cx_Kss := nil;\par
+           cf_Kss := nil;\par
+           SetLength (cx_Kss, npg, Number_subwatersheds);\par
+           SetLength (cf_Kss, npg, (Number_subwatersheds + 1));\par
+       End;\par
+\par
+    If Calibrate_Kcap_DT = True Then\par
+       Begin\par
+           cx_Kcr := nil;\par
+           cf_Kcr := nil;\par
+           SetLength (cx_Kcr, npg, Number_subwatersheds);\par
+           SetLength (cf_Kcr, npg, (Number_subwatersheds + 1));\par
+       End;\par
+\par
+    Repeat\par
+        For igs := 1 to ngs do\par
+           Begin\par
+               If Encerrar = 1 Then\par
+                   Break;\par
+               //If checkbox.Checked = True Then Break;\par
+              // Partition the population into complexes (sub-populations)\par
+               For k1 := 1 to npg do\par
+                  Begin\par
+                      k2 := ((k1 - 1) * ngs) + igs;\par
+                      For loop_nopt6 := 1 to nopt_L do\par
+                         Begin\par
+                             cx_L [(k1 - 1), (loop_nopt6 - 1)] := Xf_L [(k2 - 1), (loop_nopt6 - 1)];\par
+                             cf_L [(k1 - 1), (loop_nopt6 - 1)] := Xf_L [(k2 - 1), (loop_nopt6 - 1)];\par
+                         End;\par
+                      cf_L [(k1 - 1), nopt_L] := Xf_L [(k2 - 1), nopt_L];\par
+\par
+                      For loop_nopt6 := 1 to Number_subwatersheds do\par
+                         Begin\par
+                             If Calibrate_Lambda_DT = True Then\par
+                                Begin\par
+                                    cx_Lambda [(k1 - 1), (loop_nopt6 - 1)] := Xf_Lambda [(k2 - 1), (loop_nopt6 - 1)];\par
+                                    cf_Lambda [(k1 - 1), (loop_nopt6 - 1)] := Xf_Lambda [(k2 - 1), (loop_nopt6 - 1)];\par
+                                End;\par
+                             If Calibrate_Kb_DT = True Then\par
+                                Begin\par
+                                    cx_Kb [(k1 - 1), (loop_nopt6 - 1)] := Xf_Kb [(k2 - 1), (loop_nopt6 - 1)];\par
+                                    cf_Kb [(k1 - 1), (loop_nopt6 - 1)] := Xf_Kb [(k2 - 1), (loop_nopt6 - 1)];\par
+                                End;\par
+                             If Calibrate_Kss_DT = True Then\par
+                                Begin\par
+                                    cx_Kss [(k1 - 1), (loop_nopt6 - 1)] := Xf_Kss [(k2 - 1), (loop_nopt6 - 1)];\par
+                                    cf_Kss [(k1 - 1), (loop_nopt6 - 1)] := Xf_Kss [(k2 - 1), (loop_nopt6 - 1)];\par
+                                End;\par
+                             If Calibrate_Kcap_DT = True Then\par
+                                Begin\par
+                                    cx_Kcr [(k1 - 1), (loop_nopt6 - 1)] := Xf_Kcr [(k2 - 1), (loop_nopt6 - 1)];\par
+                                    cf_Kcr [(k1 - 1), (loop_nopt6 - 1)] := Xf_Kcr [(k2 - 1), (loop_nopt6 - 1)];\par
+                                End;\par
+                         End;\par
+                      If Calibrate_Lambda_DT = True Then cf_Lambda [(k1 - 1), Number_subwatersheds] := Xf_Lambda [(k2 - 1), Number_subwatersheds];\par
+                      If Calibrate_Kb_DT = True Then cf_Kb [(k1 - 1), Number_subwatersheds] := Xf_Kb [(k2 - 1), Number_subwatersheds];\par
+                      If Calibrate_Kss_DT = True Then cf_Kss [(k1 - 1), Number_subwatersheds] := Xf_Kss [(k2 - 1), Number_subwatersheds];\par
+                      If Calibrate_Kcap_DT = True Then cf_Kcr [(k1 - 1), Number_subwatersheds] := Xf_Kcr [(k2 - 1), Number_subwatersheds];\par
+                  End;\par
+               // Partition the population into complexes (sub-populations)\par
+\par
+               //Evolve sub-population igs for nspl steps\par
+               For loop := 1 to nspl do\par
+                  Begin\par
+                      //If checkbox.Checked = True Then Break;\par
+                      // Select simplex by sampling the complex according to a linear probability distribution\par
+                      Matriz_lcs := nil;\par
+                      //lcs := nil;\par
+                      SetLength (matriz_lcs, nps);\par
+                      Matriz_lcs [0] := 1;\par
+\par
+                      For k3 := 2 to nps do\par
+                         Begin\par
+                             For iter := 1 to 1000 do\par
+                                Begin\par
+                                    lpos := 1 + Floor(npg + 0.5 - sqrt(sqr(npg + 0.5) - (npg * (npg + 1) * Random)));\par
+\par
+                                    If Confere_Array_lpos(matriz_lcs, (k3 - 1), lpos) = False Then\par
+                                       Break;\par
+                                End;\par
+                             matriz_lcs [k3 - 1] := lpos;\par
+                         End;\par
+\par
+                      lcs := nil;\par
+                      SetLength (lcs, nps);\par
+                      QuickSort_lcs(Low (matriz_lcs), High (matriz_lcs));\par
+\par
+                      For loop_nps1 := 1 to nps do\par
+                         lcs [loop_nps1 - 1] := matriz_lcs [loop_nps1 - 1];\par
+\par
+                      //ShowMessage(IntToStr (lcs [0]) + ';' + IntToStr (lcs [1]) + ';' + IntToStr (lcs [2]) + ';' + IntToStr (lcs [3]));\par
+                      // Select simplex by sampling the complex according to a linear probability distribution\par
+\par
+                      // Construct the simplex\par
+                      s_L := nil;\par
+                      sf_L := nil;\par
+                      SetLength (s_L, nps, nopt_L);\par
+                      SetLength (sf_L, nps);\par
+\par
+                      If Calibrate_Lambda_DT = True Then\par
+                         Begin\par
+                             s_Lambda := nil;\par
+                             sf_Lambda := nil;\par
+                             SetLength (s_Lambda, nps, Number_subwatersheds);\par
+                             SetLength (sf_Lambda, nps);\par
+                         End;\par
+\par
+                      If Calibrate_Kb_DT = True Then\par
+                         Begin\par
+                             s_Kb := nil;\par
+                             sf_Kb := nil;\par
+                             SetLength (s_Kb, nps, Number_subwatersheds);\par
+                             SetLength (sf_Kb, nps);\par
+                         End;\par
+\par
+                      If Calibrate_Kss_DT = True Then\par
+                         Begin\par
+                             s_Kss := nil;\par
+                             sf_Kss := nil;\par
+                             SetLength (s_Kss, nps, Number_subwatersheds);\par
+                             SetLength (sf_Kss, nps);\par
+                         End;\par
+\par
+                      If Calibrate_Kcap_DT = True Then\par
+                         Begin\par
+                             s_Kcr := nil;\par
+                             sf_Kcr := nil;\par
+                             SetLength (s_Kcr, nps, Number_subwatersheds);\par
+                             SetLength (sf_Kcr, nps);\par
+                         End;\par
+\par
+                      For loop_nps2 := 1 to nps do\par
+                         Begin\par
+                             For loop_nopt7 := 1 to nopt_L do\par
+                                s_L [(loop_nps2 - 1), (loop_nopt7 - 1)] := cx_L [(lcs [loop_nps2 - 1] - 1) , (loop_nopt7 - 1)];\par
+                             sf_L [loop_nps2 - 1] := cf_L [(lcs [loop_nps2 - 1] - 1), nopt_L];\par
+\par
+                             For loop_nopt7 := 1 to Number_subwatersheds do\par
+                                Begin\par
+                                    If Calibrate_Lambda_DT = True Then s_Lambda [(loop_nps2 - 1), (loop_nopt7 - 1)] := cx_Lambda [(lcs [loop_nps2 - 1] - 1) , (loop_nopt7 - 1)];\par
+                                    If Calibrate_Kb_DT = True Then s_Kb [(loop_nps2 - 1), (loop_nopt7 - 1)] := cx_Kb [(lcs [loop_nps2 - 1] - 1) , (loop_nopt7 - 1)];\par
+                                    If Calibrate_Kss_DT = True Then s_Kss [(loop_nps2 - 1), (loop_nopt7 - 1)] := cx_Kss [(lcs [loop_nps2 - 1] - 1) , (loop_nopt7 - 1)];\par
+                                    If Calibrate_Kcap_DT = True Then s_Kcr [(loop_nps2 - 1), (loop_nopt7 - 1)] := cx_Kcr [(lcs [loop_nps2 - 1] - 1) , (loop_nopt7 - 1)];\par
+                                End;\par
+                             If Calibrate_Lambda_DT = True Then sf_Lambda [loop_nps2 - 1] := cf_Lambda [(lcs [loop_nps2 - 1] - 1), Number_subwatersheds];\par
+                             If Calibrate_Kb_DT = True Then sf_Kb [loop_nps2 - 1] := cf_Kb [(lcs [loop_nps2 - 1] - 1), Number_subwatersheds];\par
+                             If Calibrate_Kss_DT = True Then sf_Kss [loop_nps2 - 1] := cf_Kss [(lcs [loop_nps2 - 1] - 1), Number_subwatersheds];\par
+                             If Calibrate_Kcap_DT = True Then sf_Kcr [loop_nps2 - 1] := cf_Kcr [(lcs [loop_nps2 - 1] - 1), Number_subwatersheds];\par
+                         End;\par
+\par
+                      /// Alfa\par
+                      For Cont_Alpha_SCE := 1 to Alpha_SCE do\par
+                         Begin\par
+                             // CALL FUNCTION CCEUA HERE\par
+                             If Encerrar = 1 Then\par
+                                Break;\par
+\par
+//#### CCEUA #####################################################################################################\par
+                             CCEUA(cdsEntrada, cdsParameter, cdsParameters_Distribuido, cdsResults, cdsResults_Lambda, cdsResults_Kb, cdsResults_Kss, cdsResults_Kcr, strP5, Hydrograph, graphAmin, graphAmax, graphAmed, graphKs, graphP, 1, 0.5, bl_L, bu_L, bl_DT, bu_DT);\par
+//#### CCEUA #####################################################################################################\par
+\par
+\par
+\par
+\par
+\par
+                             //Replace the worst point in Simplex with the new point\par
+                             For loop_nopt8 := 1 to nopt_L do\par
+                                s_L [(nps - 1), (loop_nopt8 - 1)] := snew_L [loop_nopt8 - 1];\par
+\par
+                             sf_L [nps - 1] := fnew_L;\par
+\par
+                             For loop_nopt8 := 1 to Number_subwatersheds do\par
+                                Begin\par
+                                    If Calibrate_Lambda_DT = True Then s_Lambda [(nps - 1), (loop_nopt8 - 1)] := snew_Lambda [loop_nopt8 - 1];\par
+                                    If Calibrate_Kb_DT = True Then s_Kb [(nps - 1), (loop_nopt8 - 1)] := snew_Kb [loop_nopt8 - 1];\par
+                                    If Calibrate_Kss_DT = True Then s_Kss [(nps - 1), (loop_nopt8 - 1)] := snew_Kss [loop_nopt8 - 1];\par
+                                    If Calibrate_Kcap_DT = True Then s_Kcr [(nps - 1), (loop_nopt8 - 1)] := snew_Kcr [loop_nopt8 - 1];\par
+                                End;\par
+\par
+                             If Calibrate_Lambda_DT = True Then sf_Lambda [nps - 1] := fnew_Lambda;\par
+                             If Calibrate_Kb_DT = True Then sf_Kb [nps - 1] := fnew_Kb;\par
+                             If Calibrate_Kss_DT = True Then sf_Kss [nps - 1] := fnew_Kss;\par
+                             If Calibrate_Kcap_DT = True Then sf_Kcr [nps - 1] := fnew_Kcr;\par
+                             //Replace the worst point in Simplex with the new point\par
+                         End;\par
+                      /// Alfa FIM\par
+\par
+                      // Replace the simplex into the complex\par
+                      For loop_nopt9 := 1 to nopt_L do\par
+                         Begin\par
+                             cx_L [(npg - 1) , (loop_nopt9 - 1)] := s_L [(nps - 1), (loop_nopt9 - 1)];\par
+                             cf_L [(npg - 1) , (loop_nopt9 - 1)] := s_L [(nps - 1), (loop_nopt9 - 1)];\par
+                         End;\par
+                      cf_L [(npg - 1) , nopt_L] := sf_L [(nps - 1)];\par
+\par
+                      For loop_nopt9 := 1 to Number_subwatersheds do\par
+                         Begin\par
+                             If Calibrate_Lambda_DT = True Then\par
+                                Begin\par
+                                    cx_Lambda [(npg - 1) , (loop_nopt9 - 1)] := s_Lambda [(nps - 1), (loop_nopt9 - 1)];\par
+                                    cf_Lambda [(npg - 1) , (loop_nopt9 - 1)] := s_Lambda [(nps - 1), (loop_nopt9 - 1)];\par
+                                End;\par
+                             If Calibrate_Kb_DT = True Then\par
+                                Begin\par
+                                    cx_Kb [(npg - 1) , (loop_nopt9 - 1)] := s_Kb [(nps - 1), (loop_nopt9 - 1)];\par
+                                    cf_Kb [(npg - 1) , (loop_nopt9 - 1)] := s_Kb [(nps - 1), (loop_nopt9 - 1)];\par
+                                End;\par
+                             If Calibrate_Kss_DT = True Then\par
+                                Begin\par
+                                    cx_Kss [(npg - 1) , (loop_nopt9 - 1)] := s_Kss [(nps - 1), (loop_nopt9 - 1)];\par
+                                    cf_Kss [(npg - 1) , (loop_nopt9 - 1)] := s_Kss [(nps - 1), (loop_nopt9 - 1)];\par
+                                End;\par
+                             If Calibrate_Kcap_DT = True Then\par
+                                Begin\par
+                                    cx_Kcr [(npg - 1) , (loop_nopt9 - 1)] := s_Kcr [(nps - 1), (loop_nopt9 - 1)];\par
+                                    cf_Kcr [(npg - 1) , (loop_nopt9 - 1)] := s_Kcr [(nps - 1), (loop_nopt9 - 1)];\par
+                                End;\par
+                         End;\par
+                      If Calibrate_Lambda_DT = True Then cf_Lambda [(npg - 1) , Number_subwatersheds] := sf_Lambda [(nps - 1)];\par
+                      If Calibrate_Kb_DT = True Then cf_Kb [(npg - 1) , Number_subwatersheds] := sf_Kb [(nps - 1)];\par
+                      If Calibrate_Kss_DT = True Then cf_Kss [(npg - 1) , Number_subwatersheds] := sf_Kss [(nps - 1)];\par
+                      If Calibrate_Kcap_DT = True Then cf_Kcr [(npg - 1) , Number_subwatersheds] := sf_Kcr [(nps - 1)];\par
+                      // Replace the simplex into the complex\par
+\par
+                      // Sort de complex\par
+                      matriz_ordenar := nil;\par
+                      SetLength (matriz_ordenar, npg, (nopt_L + 1));\par
+                      For loop_npg1 := 1 to npg do\par
+                         Begin\par
+                             For loop_nopt10 := 1 to nopt_L do\par
+                                matriz_ordenar [(loop_npg1 - 1), (loop_nopt10 - 1)] := cf_L [(loop_npg1 - 1), (loop_nopt10 - 1)];\par
+                             matriz_ordenar [(loop_npg1 - 1), nopt_L] := cf_L [(loop_npg1 - 1), nopt_L];\par
+                         End;\par
+\par
+                      QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (nopt_L + 1), nopt_L);\par
+                      cx_L := nil;\par
+                      cf_L := nil;\par
+                      SetLength (cx_L, npg, nopt_L);\par
+                      SetLength (cf_L, npg, (nopt_L + 1));\par
+\par
+                      For loop_npg2 := 1 to npg do\par
+                         Begin\par
+                             For loop_nopt11 := 1 to nopt_L do\par
+                                Begin\par
+                                    cx_L [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                    cf_L [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                End;\par
+                             cf_L [(loop_npg2 - 1), nopt_L] := matriz_ordenar [(loop_npg2 - 1), nopt_L];\par
+                         End;\par
+\par
+                      //lambda - ordenar complexo\par
+                      If Calibrate_Lambda_DT = True Then\par
+                         Begin\par
+                             matriz_ordenar := nil;\par
+                             SetLength (matriz_ordenar, npg, (Number_subwatersheds + 1));\par
+                             For loop_npg1 := 1 to npg do\par
+                                Begin\par
+                                    For loop_nopt10 := 1 to Number_subwatersheds do\par
+                                       matriz_ordenar [(loop_npg1 - 1), (loop_nopt10 - 1)] := cf_Lambda [(loop_npg1 - 1), (loop_nopt10 - 1)];\par
+                                    matriz_ordenar [(loop_npg1 - 1), Number_subwatersheds] := cf_Lambda [(loop_npg1 - 1), Number_subwatersheds];\par
+                                End;\par
+                             QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+                             cx_Lambda := nil;\par
+                             cf_Lambda := nil;\par
+                             SetLength (cx_Lambda, npg, Number_subwatersheds);\par
+                             SetLength (cf_Lambda, npg, (Number_subwatersheds + 1));\par
+                             For loop_npg2 := 1 to npg do\par
+                                Begin\par
+                                    For loop_nopt11 := 1 to Number_subwatersheds do\par
+                                       Begin\par
+                                           cx_Lambda [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                           cf_Lambda [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                       End;\par
+                                    cf_Lambda [(loop_npg2 - 1), Number_subwatersheds] := matriz_ordenar [(loop_npg2 - 1), Number_subwatersheds];\par
+                                End;\par
+                         End;\par
+                      //lambda - ordenar complexo\par
+\par
+                      //Kb - ordenar complexo\par
+                      If Calibrate_Kb_DT = True Then\par
+                         Begin\par
+                             matriz_ordenar := nil;\par
+                             SetLength (matriz_ordenar, npg, (Number_subwatersheds + 1));\par
+                             For loop_npg1 := 1 to npg do\par
+                                Begin\par
+                                    For loop_nopt10 := 1 to Number_subwatersheds do\par
+                                       matriz_ordenar [(loop_npg1 - 1), (loop_nopt10 - 1)] := cf_Kb [(loop_npg1 - 1), (loop_nopt10 - 1)];\par
+                                    matriz_ordenar [(loop_npg1 - 1), Number_subwatersheds] := cf_Kb [(loop_npg1 - 1), Number_subwatersheds];\par
+                                End;\par
+                             QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+                             cx_Kb := nil;\par
+                             cf_Kb := nil;\par
+                             SetLength (cx_Kb, npg, Number_subwatersheds);\par
+                             SetLength (cf_Kb, npg, (Number_subwatersheds + 1));\par
+                             For loop_npg2 := 1 to npg do\par
+                                Begin\par
+                                    For loop_nopt11 := 1 to Number_subwatersheds do\par
+                                       Begin\par
+                                           cx_Kb [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                           cf_Kb [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                       End;\par
+                                    cf_Kb [(loop_npg2 - 1), Number_subwatersheds] := matriz_ordenar [(loop_npg2 - 1), Number_subwatersheds];\par
+                                End;\par
+                         End;\par
+                      //Kb - ordenar complexo\par
+\par
+                      //Kss - ordenar complexo\par
+                      If Calibrate_Kss_DT = True Then\par
+                         Begin\par
+                             matriz_ordenar := nil;\par
+                             SetLength (matriz_ordenar, npg, (Number_subwatersheds + 1));\par
+                                For loop_npg1 := 1 to npg do\par
+                                   Begin\par
+                                       For loop_nopt10 := 1 to Number_subwatersheds do\par
+                                          matriz_ordenar [(loop_npg1 - 1), (loop_nopt10 - 1)] := cf_Kss [(loop_npg1 - 1), (loop_nopt10 - 1)];\par
+                                       matriz_ordenar [(loop_npg1 - 1), Number_subwatersheds] := cf_Kss [(loop_npg1 - 1), Number_subwatersheds];\par
+                                   End;\par
+                                QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+                                cx_Kss := nil;\par
+                                cf_Kss := nil;\par
+                                SetLength (cx_Kss, npg, Number_subwatersheds);\par
+                                SetLength (cf_Kss, npg, (Number_subwatersheds + 1));\par
+                                For loop_npg2 := 1 to npg do\par
+                                   Begin\par
+                                       For loop_nopt11 := 1 to Number_subwatersheds do\par
+                                          Begin\par
+                                              cx_Kss [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                              cf_Kss [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                          End;\par
+                                       cf_Kss [(loop_npg2 - 1), Number_subwatersheds] := matriz_ordenar [(loop_npg2 - 1), Number_subwatersheds];\par
+                                   End;\par
+                         End;\par
+                      //Kss - ordenar complexo\par
+\par
+                      //Kcr - ordenar complexo\par
+                      If Calibrate_Kcap_DT = True Then\par
+                         Begin\par
+                             matriz_ordenar := nil;\par
+                             SetLength (matriz_ordenar, npg, (Number_subwatersheds + 1));\par
+                                For loop_npg1 := 1 to npg do\par
+                                   Begin\par
+                                       For loop_nopt10 := 1 to Number_subwatersheds do\par
+                                          matriz_ordenar [(loop_npg1 - 1), (loop_nopt10 - 1)] := cf_Kcr [(loop_npg1 - 1), (loop_nopt10 - 1)];\par
+                                       matriz_ordenar [(loop_npg1 - 1), Number_subwatersheds] := cf_Kcr [(loop_npg1 - 1), Number_subwatersheds];\par
+                                   End;\par
+                             QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+                             cx_Kcr := nil;\par
+                             cf_Kcr := nil;\par
+                             SetLength (cx_Kcr, npg, Number_subwatersheds);\par
+                             SetLength (cf_Kcr, npg, (Number_subwatersheds + 1));\par
+                             For loop_npg2 := 1 to npg do\par
+                                Begin\par
+                                    For loop_nopt11 := 1 to Number_subwatersheds do\par
+                                       Begin\par
+                                           cx_Kcr [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                           cf_Kcr [(loop_npg2 - 1), (loop_nopt11 - 1)] := matriz_ordenar [(loop_npg2 - 1), (loop_nopt11 - 1)];\par
+                                       End;\par
+                                    cf_Kcr [(loop_npg2 - 1), Number_subwatersheds] := matriz_ordenar [(loop_npg2 - 1), Number_subwatersheds];\par
+                                End;\par
+                         End;\par
+                      //Kcr - ordenar complexo\par
+                      // Sort de complex\par
+                  End;\par
+           //Evolve sub-population igs for nspl steps\par
+\par
+          //Replace the complex back into the population\par
+               For k1 := 1 to npg do\par
+                  Begin\par
+                      k2 := ((k1 - 1) * ngs) + igs;\par
+                      For loop_nopt12 := 1 to nopt_L do\par
+                         Begin\par
+                             X_L [(k2 - 1), (loop_nopt12 - 1)] := cx_L [(k1 - 1), (loop_nopt12 - 1)];\par
+                             Xf_L [(k2 - 1), (loop_nopt12 - 1)] := cx_L [(k1 - 1), (loop_nopt12 - 1)];\par
+                         End;\par
+                      Xf_L [(k2 - 1), nopt_L] := cf_L [(k1 - 1), nopt_L];\par
+\par
+                      For loop_nopt12 := 1 to Number_subwatersheds do\par
+                         Begin\par
+                             If Calibrate_Lambda_DT = True Then\par
+                                Begin\par
+                                    X_Lambda [(k2 - 1), (loop_nopt12 - 1)] := cx_Lambda [(k1 - 1), (loop_nopt12 - 1)];\par
+                                    Xf_Lambda [(k2 - 1), (loop_nopt12 - 1)] := cx_Lambda [(k1 - 1), (loop_nopt12 - 1)];\par
+                                End;\par
+                             If Calibrate_Kb_DT = True Then\par
+                                Begin\par
+                                    X_Kb [(k2 - 1), (loop_nopt12 - 1)] := cx_Kb [(k1 - 1), (loop_nopt12 - 1)];\par
+                                    Xf_Kb [(k2 - 1), (loop_nopt12 - 1)] := cx_Kb [(k1 - 1), (loop_nopt12 - 1)];\par
+                                End;\par
+                             If Calibrate_Kss_DT = True Then\par
+                                Begin\par
+                                    X_Kss [(k2 - 1), (loop_nopt12 - 1)] := cx_Kss [(k1 - 1), (loop_nopt12 - 1)];\par
+                                    Xf_Kss [(k2 - 1), (loop_nopt12 - 1)] := cx_Kss [(k1 - 1), (loop_nopt12 - 1)];\par
+                                End;\par
+                             If Calibrate_Kcap_DT = True Then\par
+                                Begin\par
+                                    X_Kcr [(k2 - 1), (loop_nopt12 - 1)] := cx_Kcr [(k1 - 1), (loop_nopt12 - 1)];\par
+                                    Xf_Kcr [(k2 - 1), (loop_nopt12 - 1)] := cx_Kcr [(k1 - 1), (loop_nopt12 - 1)];\par
+                                End;\par
+                         End;\par
+                      If Calibrate_Lambda_DT = True Then Xf_Lambda [(k2 - 1), Number_subwatersheds] := cf_Lambda [(k1 - 1), Number_subwatersheds];\par
+                      If Calibrate_Kb_DT = True Then Xf_Kb [(k2 - 1), Number_subwatersheds] := cf_Kb [(k1 - 1), Number_subwatersheds];\par
+                      If Calibrate_Kss_DT = True Then Xf_Kss [(k2 - 1), Number_subwatersheds] := cf_Kss [(k1 - 1), Number_subwatersheds];\par
+                      If Calibrate_Kcap_DT = True Then Xf_Kcr [(k2 - 1), Number_subwatersheds] := cf_Kcr [(k1 - 1), Number_subwatersheds];\par
+                  End;\par
+          //Replace the complex back into the population\par
+\par
+           End;//For igs := 1 to ngs do\par
+//------Repeat - Continua\'e7\'e3o\par
+           // Shuffle the complexes\par
+        matriz_ordenar := nil;\par
+        SetLength (matriz_ordenar, npt, (nopt_L + 1));\par
+\par
+        For loop_npt5 := 1 to npt do\par
+           Begin\par
+               For loop_nopt13 := 1 to nopt_L do\par
+                  matriz_ordenar [(loop_npt5 - 1), (loop_nopt13 - 1)] := X_L [(loop_npt5 - 1), (loop_nopt13 - 1)];\par
+               matriz_ordenar [(loop_npt5 - 1), nopt_L] := Xf_L [(loop_npt5 - 1), nopt_L];\par
+           End;\par
+\par
+        QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (nopt_L + 1), nopt_L);\par
+        X_L := nil;\par
+        Xf_L := nil;\par
+        SetLength (X_L, npt, nopt_L);\par
+        SetLength (Xf_L, npt, (nopt_L + 1));\par
+\par
+        For loop_npt6 := 1 to npt do\par
+           Begin\par
+               For loop_nopt14 := 1 to nopt_L do\par
+                  Begin\par
+                      X_L [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                      Xf_L [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                  End;\par
+               Xf_L [(loop_npt6 - 1), nopt_L] := matriz_ordenar [(loop_npt6 - 1), nopt_L];\par
+           End;\par
+\par
+        //Lambda - shuffle the complexes\par
+        If Calibrate_Lambda_DT = True Then\par
+           Begin\par
+               matriz_ordenar := nil;\par
+               SetLength (matriz_ordenar, npt, (Number_subwatersheds + 1));\par
+               For loop_npt5 := 1 to npt do\par
+                  Begin\par
+                      For loop_nopt13 := 1 to Number_subwatersheds do\par
+                         matriz_ordenar [(loop_npt5 - 1), (loop_nopt13 - 1)] := X_Lambda [(loop_npt5 - 1), (loop_nopt13 - 1)];\par
+                      matriz_ordenar [(loop_npt5 - 1), Number_subwatersheds] := Xf_Lambda [(loop_npt5 - 1), Number_subwatersheds];\par
+                  End;\par
+               QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+               X_Lambda := nil;\par
+               Xf_Lambda := nil;\par
+               SetLength (X_Lambda, npt, Number_subwatersheds);\par
+               SetLength (Xf_Lambda, npt, (Number_subwatersheds + 1));\par
+               For loop_npt6 := 1 to npt do\par
+                  Begin\par
+                      For loop_nopt14 := 1 to Number_subwatersheds do\par
+                         Begin\par
+                             X_Lambda [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                             Xf_Lambda [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                         End;\par
+                      Xf_Lambda [(loop_npt6 - 1), Number_subwatersheds] := matriz_ordenar [(loop_npt6 - 1), Number_subwatersheds];\par
+                  End;\par
+           End;\par
+        //Lambda - shuffle the complexes\par
+\par
+        //Kb - shuffle the complexes\par
+        If Calibrate_Kb_DT = True Then\par
+           Begin\par
+               matriz_ordenar := nil;\par
+               SetLength (matriz_ordenar, npt, (Number_subwatersheds + 1));\par
+               For loop_npt5 := 1 to npt do\par
+                  Begin\par
+                      For loop_nopt13 := 1 to Number_subwatersheds do\par
+                         matriz_ordenar [(loop_npt5 - 1), (loop_nopt13 - 1)] := X_Kb [(loop_npt5 - 1), (loop_nopt13 - 1)];\par
+                      matriz_ordenar [(loop_npt5 - 1), Number_subwatersheds] := Xf_Kb [(loop_npt5 - 1), Number_subwatersheds];\par
+                  End;\par
+               QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+               X_Kb := nil;\par
+               Xf_Kb := nil;\par
+               SetLength (X_Kb, npt, Number_subwatersheds);\par
+               SetLength (Xf_Kb, npt, (Number_subwatersheds + 1));\par
+               For loop_npt6 := 1 to npt do\par
+                  Begin\par
+                      For loop_nopt14 := 1 to Number_subwatersheds do\par
+                         Begin\par
+                             X_Kb [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                             Xf_Kb [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                         End;\par
+                      Xf_Kb [(loop_npt6 - 1), Number_subwatersheds] := matriz_ordenar [(loop_npt6 - 1), Number_subwatersheds];\par
+                  End;\par
+           End;\par
+        //Kb - shuffle the complexes\par
+\par
+        //Kss - shuffle the complexes\par
+        If Calibrate_Kss_DT = True Then\par
+           Begin\par
+               matriz_ordenar := nil;\par
+               SetLength (matriz_ordenar, npt, (Number_subwatersheds + 1));\par
+               For loop_npt5 := 1 to npt do\par
+                  Begin\par
+                      For loop_nopt13 := 1 to Number_subwatersheds do\par
+                         matriz_ordenar [(loop_npt5 - 1), (loop_nopt13 - 1)] := X_Kss [(loop_npt5 - 1), (loop_nopt13 - 1)];\par
+                      matriz_ordenar [(loop_npt5 - 1), Number_subwatersheds] := Xf_Kss [(loop_npt5 - 1), Number_subwatersheds];\par
+                  End;\par
+               QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+               X_Kss := nil;\par
+               Xf_Kss := nil;\par
+               SetLength (X_Kss, npt, Number_subwatersheds);\par
+               SetLength (Xf_Kss, npt, (Number_subwatersheds + 1));\par
+               For loop_npt6 := 1 to npt do\par
+                  Begin\par
+                      For loop_nopt14 := 1 to Number_subwatersheds do\par
+                         Begin\par
+                             X_Kss [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                             Xf_Kss [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                         End;\par
+                      Xf_Kss [(loop_npt6 - 1), Number_subwatersheds] := matriz_ordenar [(loop_npt6 - 1), Number_subwatersheds];\par
+                  End;\par
+           End;\par
+        //Kss - shuffle the complexes\par
+\par
+        //Kcr - shuffle the complexes\par
+        If Calibrate_Kcap_DT = True Then\par
+           Begin\par
+               matriz_ordenar := nil;\par
+               SetLength (matriz_ordenar, npt, (Number_subwatersheds + 1));\par
+               For loop_npt5 := 1 to npt do\par
+                  Begin\par
+                      For loop_nopt13 := 1 to Number_subwatersheds do\par
+                         matriz_ordenar [(loop_npt5 - 1), (loop_nopt13 - 1)] := X_Kcr [(loop_npt5 - 1), (loop_nopt13 - 1)];\par
+                      matriz_ordenar [(loop_npt5 - 1), Number_subwatersheds] := Xf_Kcr [(loop_npt5 - 1), Number_subwatersheds];\par
+                  End;\par
+               QuickSort(Low (matriz_ordenar), High (matriz_ordenar), (Number_subwatersheds + 1), Number_subwatersheds);\par
+               X_Kcr := nil;\par
+               Xf_Kcr := nil;\par
+               SetLength (X_Kcr, npt, Number_subwatersheds);\par
+               SetLength (Xf_Kcr, npt, (Number_subwatersheds + 1));\par
+               For loop_npt6 := 1 to npt do\par
+                  Begin\par
+                      For loop_nopt14 := 1 to Number_subwatersheds do\par
+                         Begin\par
+                             X_Kcr [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                             Xf_Kcr [(loop_npt6 - 1), (loop_nopt14 - 1)] := matriz_ordenar [(loop_npt6 - 1), (loop_nopt14 - 1)];\par
+                         End;\par
+                      Xf_Kcr [(loop_npt6 - 1), Number_subwatersheds] := matriz_ordenar [(loop_npt6 - 1), Number_subwatersheds];\par
+                  End;\par
+           End;\par
+        //Kcr - shuffle the complexes   \par
+\par
+        // Shuffle the complexes\par
+\par
+        \{If MessageDlg('Do you want to continue iterations?', mtConfirmation,\par
+          [mbYes, mbNo], 0) = mrNo then Break;\}\par
+        If Encerrar = 1 Then\par
+           Break;\par
+\par
+    Until Xf_L [0, nopt_L] <= Constraint;\par
+\par
+    //If cdsParameters.Locate('Parameter', 'SVSMC', [loCaseInsensitive]) = True Then SVSMC := X [0, (cdsParameters.RecNo - 1)];\par
+    //If cdsParameters.Locate('Parameter', 'PWPSMC', [loCaseInsensitive]) = True Then PWPSMC := X [0, (cdsParameters.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'IVSMC', [loCaseInsensitive]) = True Then\par
+       IVSMC := X_L [0, (cdsParameter.RecNo - 1)];\par
+\par
+    //If cdsParameters.Locate('Parameter', 'SD', [loCaseInsensitive]) = True Then SD := X [0, (cdsParameters.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Kb', [loCaseInsensitive]) = True Then\par
+       Kb := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Kss', [loCaseInsensitive]) = True Then\par
+       Kss := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Kcap', [loCaseInsensitive]) = True Then\par
+       Kcap := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Lambda', [loCaseInsensitive]) = True Then\par
+       Lambda := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Cs', [loCaseInsensitive]) = True Then\par
+       Cs := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Css', [loCaseInsensitive]) = True Then\par
+       Css := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Cbase', [loCaseInsensitive]) = True Then\par
+       Cbase := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Ac', [loCaseInsensitive]) = True Then\par
+       Ac := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Acc', [loCaseInsensitive]) = True Then\par
+       Acc := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'Acr', [loCaseInsensitive]) = True Then\par
+       Acr := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'AL', [loCaseInsensitive]) = True Then\par
+       AL := X_L [0, (cdsParameter.RecNo - 1)];\par
+    If cdsParameter.Locate('Parameter', 'PS', [loCaseInsensitive]) = True Then\par
+       Pr := X_L [0, (cdsParameter.RecNo - 1)];\par
+\par
+    \{L := 0;\par
+    BH(cdsEntrada, Hydrograph, 365, 1440, Lambda, Kb, Kss, Cs, Css);\}\par
+End;\par
+//############################################## SCE - FIM #######################################################################\par
+//################################################################################################################################\par
+}
+ 
