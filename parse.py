@@ -43,6 +43,7 @@ class SubBacia:
 		self.verificacaoPu = 0.0
 		self.pacum = []
 		self.pefacum = []
+		self.pefIntervalo = []
 
 	def show(self):
 		print("Área: " + str(self.area) + "   cn: " + str(self.cn) + "   k: " + str(self.k) + "   n: " + str(self.n) + "   Ia: " + str(self.ia))
@@ -105,6 +106,14 @@ class SubBacia:
 			#print("value: " + str(value) + " s_mm: " + str(self.s_mm) + " ia: " + str(self.ia))
 			self.pefacum.append( math.pow((value - self.ia), 2) / (value + self.s_mm - self.ia) )
 
+	def calculaPefIntervalo(self):
+		self.pefIntervalo.append(0.0)
+		l = len(self.pefacum)
+		#for i in range(l):
+		i = 1
+		while i < l: 
+			self.pefIntervalo.append(self.pefacum[i] - self.pefacum[i-1])
+			i+=1
 
 
 	def calcula(self):
@@ -113,6 +122,7 @@ class SubBacia:
 		self.calculaPAcum()
 		self.calculaSmm()
 		self.calculaPefacum()
+		self.calculaPefIntervalo()
 
 
 
@@ -131,7 +141,8 @@ for sb in subBacias:
 	#print(sb.hui)
 	#print("sb.verificacaoPu: " + str(sb.verificacaoPu))
 	#print(sb.pacum)
-	print(sb.pefacum)
+	#print(sb.pefacum)
+	print(sb.pefIntervalo)
 	i+=1
 
 
