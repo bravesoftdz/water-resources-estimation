@@ -35,17 +35,21 @@ class SubBacia:
 		self.area = 0.0
 		self.cn = 0.0
 		self.k = 0.0
+		self.s_mm = 0.0 # coluna N
 		self.n = 0.0
 		self.ia = 0.0
-		self.leituras = []
+		self.leituras = []	#aka precipitação mm
 		self.hui = list(dt)
 		self.verificacaoPu = 0.0
-		self.pacum = list(dt)
+		self.pacum = []
 
 	def show(self):
 		print("Área: " + str(self.area) + "   cn: " + str(self.cn) + "   k: " + str(self.k) + "   n: " + str(self.n) + "   Ia: " + str(self.ia))
 		for l in sb.leituras:
 			print(l)
+
+	def calculaSmm(self):
+		self.s = (float(25400)/self.cn) - 254
 
 	def calculaHUI(self):
 		i = 0
@@ -81,12 +85,27 @@ class SubBacia:
 		self.verificacaoPu = (soma * 180) / (self.area * 1000)
 
 	def calculaPAcum(self):
-		return 0
+		self.pacum.append(self.ia)
+
+		""" está certo este cálculo??"""
+		l = len(self.leituras)
+		i = 1
+		for value in range(l):
+			try:
+				#print("temp: " + str(temp) + " lastPacum: " + str(self.pacum[-1]) + " leituras[i]: " + str(self.leituras[i]))
+				self.pacum.append(self.pacum[-1] + self.leituras[i])	#lista[-1] retorna ultimo elemento da lista
+				i+=1
+			except Exception:
+				pass
+
+	
 
 
 	def calcula(self):
 		self.calculaHUI()
 		self.calculaVerificacaoPu()
+		self.calculaPAcum()
+		self.calculaSmm()
 
 
 
@@ -102,8 +121,9 @@ for sb in subBacias:
 	print("SubBacia " + str(i))
 	#sb.show()
 	sb.calcula()
-	print(sb.hui)
-	print("sb.verificacaoPu: " + str(sb.verificacaoPu))
+	#print(sb.hui)
+	#print("sb.verificacaoPu: " + str(sb.verificacaoPu))
+	print(sb.pacum)
 	i+=1
 
 
