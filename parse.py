@@ -93,13 +93,11 @@ class SubBacia:
 		""" está certo este cálculo??"""
 		l = len(self.leituras)
 		i = 1
-		for value in range(l):
-			try:
-				#print("temp: " + str(temp) + " lastPacum: " + str(self.pacum[-1]) + " leituras[i]: " + str(self.leituras[i]))
-				self.pacum.append(self.pacum[-1] + self.leituras[i])	#lista[-1] retorna ultimo elemento da lista
-				i+=1
-			except Exception:
-				pass
+		#for value in range(l):
+		while i < l:
+			#print("temp: " + str(temp) + " lastPacum: " + str(self.pacum[-1]) + " leituras[i]: " + str(self.leituras[i]))
+			self.pacum.append(self.pacum[-1] + self.leituras[i])	#lista[-1] retorna ultimo elemento da lista
+			i+=1
 
 	def calculaPefacum(self):
 		for value in self.pacum:
@@ -140,7 +138,7 @@ for sb in subBacias:
 	sb.calcula()
 	#print(sb.hui)
 	#print("sb.verificacaoPu: " + str(sb.verificacaoPu))
-	#print(sb.pacum)
+	print(sb.pacum)
 	#print(sb.pefacum)
 	print(sb.pefIntervalo)
 	i+=1
