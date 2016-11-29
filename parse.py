@@ -42,6 +42,7 @@ class SubBacia:
 		self.hui = list(dt)
 		self.verificacaoPu = 0.0
 		self.pacum = []
+		self.pefacum = []
 
 	def show(self):
 		print("Área: " + str(self.area) + "   cn: " + str(self.cn) + "   k: " + str(self.k) + "   n: " + str(self.n) + "   Ia: " + str(self.ia))
@@ -49,7 +50,8 @@ class SubBacia:
 			print(l)
 
 	def calculaSmm(self):
-		self.s = (float(25400)/self.cn) - 254
+		self.s_mm = (float(25400)/self.cn) - 254
+		#print("s_mm: " + str(self.s_mm) + " cn: " + str(self.cn) + " div: " + str(float(25400)/self.cn))
 
 	def calculaHUI(self):
 		i = 0
@@ -98,7 +100,11 @@ class SubBacia:
 			except Exception:
 				pass
 
-	
+	def calculaPefacum(self):
+		for value in self.pacum:
+			#print("value: " + str(value) + " s_mm: " + str(self.s_mm) + " ia: " + str(self.ia))
+			self.pefacum.append( math.pow((value - self.ia), 2) / (value + self.s_mm - self.ia) )
+
 
 
 	def calcula(self):
@@ -106,6 +112,7 @@ class SubBacia:
 		self.calculaVerificacaoPu()
 		self.calculaPAcum()
 		self.calculaSmm()
+		self.calculaPefacum()
 
 
 
@@ -123,7 +130,8 @@ for sb in subBacias:
 	sb.calcula()
 	#print(sb.hui)
 	#print("sb.verificacaoPu: " + str(sb.verificacaoPu))
-	print(sb.pacum)
+	#print(sb.pacum)
+	print(sb.pefacum)
 	i+=1
 
 
