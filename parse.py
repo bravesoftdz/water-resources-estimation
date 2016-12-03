@@ -32,6 +32,7 @@ def initialize(datafile='in.txt'):
 
 class SubBacia:
 	"""docstring for SubBacia
+		Classe que representa uma sub-bacia, com todas as variáveis utilizada na planilha excel recebida.
 		Abaixo está o significado de cada váriavel utilizada pela classe e em seguida os métodos utilizados para
 		os cálculos feitos na tabela excel recebida.
 	"""
@@ -166,7 +167,7 @@ for sb in subBacias:
 	#print(sb.pefacum)
 	#print(sb.pefIntervalo)
 	#print(sb.bq)
-	print(sb.verificaçãoPe)
+	#print(sb.verificaçãoPe)
 	i+=1
 
 
