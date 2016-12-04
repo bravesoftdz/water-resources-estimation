@@ -1,3 +1,4 @@
+import math
 from parser import initialize
 from parser import readObserved
 from subBacia import SubBacia
@@ -7,15 +8,7 @@ subBacias = initialize()
 i = 1
 for sb in subBacias:
 	print("Sub-Bacia " + str(i))
-	#sb.show()
 	sb.calcula()
-	#print(sb.hui)
-	#print("sb.verificacaoPu: " + str(sb.verificacaoPu))
-	#print(sb.pacum)
-	#print(sb.pefacum)
-	#print(sb.pefIntervalo)
-	#print(sb.bq)
-	#print(sb.verificaçãoPe)
 	i+=1
 
 qEsd = readObserved()
@@ -35,4 +28,13 @@ for sb in subBacias:
 		soma[i] += value
 		i+=1
 
-print(soma)
+erro = [0.0 for x in range(qSimuladoLength)]
+somatorioErro = 0.0
+i = 0
+while i < qSimuladoLength:
+	erro[i] = math.pow(qEsd[i] - soma[i], 2)
+	somatorioErro += erro[i]
+	i+=1
+
+print(erro)
+print(somatorioErro)
