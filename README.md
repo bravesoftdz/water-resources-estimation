@@ -1,7 +1,8 @@
 # water-resources-estimation
-<p> Basta rodar </p>
+<p> É necessário ter instalado o Python 3.5.2 (python3) e então basta rodar </p>
 <p> $ python3 main.py </p> 
 <p> com os arquivos in.txt e Q_ESD_Observada.txt (além dos outros .py) na pasta. </p> 
+<p> Pro Windows deve ser só clicar pra executar o main.py.</p>
 <p> A codificação de in.txt é: </p> 
 <ul>
   <li> 'Número de sub-bacias' </li> 
