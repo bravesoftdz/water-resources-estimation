@@ -29,7 +29,14 @@ def initialize(datafile='in.txt'):
 				subBacias[i-1].leituras.append(float(line))
 	return subBacias
 
+def readObserved(datafile='Q_ESD_Observada.txt'):
+	with open(datafile, 'r') as f:
+		readings = f.read().splitlines()
 
+	qEsd = []
+	for line in readings:
+		qEsd.append(float(line))
 
+	return qEsd
 
 

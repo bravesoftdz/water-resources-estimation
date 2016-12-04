@@ -1,4 +1,6 @@
 from parser import initialize
+from parser import readObserved
+from subBacia import SubBacia
 
 subBacias = initialize()
 
@@ -16,7 +18,17 @@ for sb in subBacias:
 	#print(sb.verificaçãoPe)
 	i+=1
 
-soma = [0.0 for x in range(len(subBacias[0].qSimulado))]
+qEsd = readObserved()
+
+qSimuladoLength = len(subBacias[0].qSimulado)
+# Todas sub-bacias possuem o mesmo tamanho de qSimulado,
+# ao menos estou assumindo isso
+
+while len(qEsd) < qSimuladoLength:
+	qEsd.append(0.0)
+
+soma = [0.0 for x in range(qSimuladoLength)]
+
 for sb in subBacias:
 	i = 0
 	for value in sb.qSimulado:
