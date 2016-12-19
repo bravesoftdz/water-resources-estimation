@@ -26,6 +26,10 @@ class SubBacia(object):
 		self.verificaçãoPe = 0.0 # cálculo da "Verificação de Pe", representa a coluna BR
 		self.qp = 0.0		# variável que contém o maior valor verificado em qSimulado, calculado no mesmo método de "Verificação de Pe"
 							# e representa a coluna BT
+		self.flagRodouPAcum = False
+		self.flagRodouPefacum = False
+		self.flagRodouPefIntervalo = False
+		self.flagRodouQSimulado = False
 
 	def show(self):
 		print("Área: " + str(self.area) + "   cn: " + str(self.cn) + "   k: " + str(self.k) + "   n: " + str(self.n) + "   Ia: " + str(self.ia))
@@ -69,28 +73,59 @@ class SubBacia(object):
 		self.verificacaoPu = float(soma * 1800) / float(self.area * 1000)
 
 	def calculaPAcum(self):
-		self.pacum.append(self.ia)
-		l = len(self.leituras)
-		i = 1
-		while i < l:
-			#lista[-1] retorna ultimo elemento da lista
-			self.pacum.append(self.pacum[-1] + self.leituras[i])	
-			i+=1
+		if not self.flagRodouPAcum: #se nao rodou pela primeira vez
+			self.pacum.append(self.ia)
+			l = len(self.leituras)
+			i = 1
+			while i < l:
+				#lista[-1] retorna ultimo elemento da lista
+				self.pacum.append(self.pacum[-1] + self.leituras[i])	
+				i+=1
+			#print("pacum" + str(len(self.pacum)))
+			self.flagRodouPAcum = True
+		else:
+			i = 1
+			l = len(self.leituras)
+			while i < l:
+				self.pacum[i] = self.pacum[i-1] + self.leituras[i]
+				i+=1
+			#print("pacum" + str(len(self.pacum)))
+
 
 	def calculaPefacum(self):
-		for value in self.pacum:
-			self.pefacum.append( math.pow((value - self.ia), 2) / (value + self.s_mm - self.ia) )
+		if not self.flagRodouPefacum:
+			for value in self.pacum:
+				self.pefacum.append( math.pow((value - self.ia), 2) / (value + self.s_mm - self.ia) )
+			#print("pefacum" + str(len(self.pefacum)))
+			self.flagRodouPefacum = True
+		else:
+			i = 0
+			l = len(self.pacum)
+			while i < l:
+				self.pefacum[i] = math.pow((self.pacum[i] - self.ia), 2) / (self.pacum[i] + self.s_mm - self.ia)
+				i+=1
+			#print("pefacum" + str(len(self.pefacum)))
 
 	def calculaPefIntervalo(self):
-		self.pefIntervalo.append(0.0)
-		l = len(self.pefacum)
-		i = 1
-		while i < l: 
-			self.pefIntervalo.append(self.pefacum[i] - self.pefacum[i-1])
-			i+=1
+		if not self.flagRodouPefIntervalo:
+			self.pefIntervalo.append(0.0)
+			l = len(self.pefacum)
+			i = 1
+			while i < l: 
+				self.pefIntervalo.append(self.pefacum[i] - self.pefacum[i-1])
+				i+=1
+			#print("pefIntervalo" + str(len(self.pefIntervalo)))
+			self.flagRodouPefIntervalo = True
+		else:
+			l = len(self.pefacum)
+			i = 1
+			while i < l:
+				self.pefIntervalo[i] = self.pefacum[i] - self.pefacum[i-1]
+				i+=1
+			#print("pefIntervalo" + str(len(self.pefIntervalo)))
+
 
 	def calculaQSimulado(self):
-		pefIntervaloLenght = len(self.pefIntervalo)
 		huiLenght = len(self.hui)
 		self.qSimulado = [0.0 for x in range(huiLenght)]
 		
@@ -102,6 +137,8 @@ class SubBacia(object):
 				k+=1
 			i+=1
 			self.qSimulado.append(0.0)
+
+		#print("qSimulado" + str(len(self.qSimulado)))
 		
 	def calculaVerificacaoPe(self):
 		soma = 0.0
@@ -136,6 +173,14 @@ class SubBacia(object):
 		tempHui = list(SubBacia.dt)
 		for value in self.hui:
 			#Coluna E
+			if SubBacia.dt[i] == 0.0: # pow(0.0, -n) = math domain error 
+				SubBacia.dt[i] += 0.000000000000000000000001
+			#a = (SubBacia.dt[i]/k)
+			#b = (n-1)
+			#print("dt: " + str(SubBacia.dt[i]))
+			#print("a:" + str(a) )
+			#print("b: " + str(b) )
+			#print("pow: " + str(math.pow(a,b)))
 			self.hui[i] = (1/(k*math.gamma(n)))*math.exp(-SubBacia.dt[i]/k)*math.pow((SubBacia.dt[i]/k),(n-1))
 
 			#Coluna F
