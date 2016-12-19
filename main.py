@@ -21,12 +21,12 @@ class spot_setup(object):
 			i+=1
 
 	def parameters(self):
-		print("entrou em parameters")
+		#print("entrou em parameters")
 		return spotpy.parameter.generate(self.params)
 
 	def simulation(self,vector):
 		#simulations= [0.0 for x in range()]
-		print("entrou em simulation")
+		#print("entrou em simulation")
 		qEsd = self.qEsd
 
 		i = 0
@@ -63,13 +63,13 @@ class spot_setup(object):
 	def evaluation(self):
 		observations = [0.0 for x in range(len(SubBacia.dt) + self.tamanho_leituras )]
 
-		print("entrou em evaluation: " + str(len(observations)))
+		#print("entrou em evaluation: " + str(len(observations)))
 		return observations
 	
 	def objectivefunction(self, simulation = simulation, evaluation = evaluation):
-		print(len(observations))
+		#print(len(observations))
 		objectivefunction = -spotpy.objectivefunctions.rmse(evaluation = evaluation, simulation = simulation)      
-		print("entrou em objectivefunction")
+		#print("entrou em objectivefunction")
 		return objectivefunction
 
 #Create samplers for every algorithm:
@@ -79,8 +79,15 @@ rep=5000
 sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='csv')
 sampler.sample(rep,ngs=4)
 results.append(sampler.getdata())
-evaluation = setup.evaluation()        
+evaluation = setup.evaluation()
 
+'''
+print("Printando evaluation:")
+print(evaluation)        
+
+print("Printando results")
+print(results)
+'''
 #subBacias = initialize()
 subBacias = setup.subBacias
 
