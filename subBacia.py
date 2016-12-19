@@ -1,5 +1,5 @@
 import math
-class SubBacia:
+class SubBacia(object):
 	dt = list(range(0, 3000, 30)) #0 a 3000, step = 30, representa a coluna A
 	"""docstring for SubBacia
 		Classe que representa uma sub-bacia, com todas as variáveis utilizada na planilha excel recebida.
@@ -111,7 +111,9 @@ class SubBacia:
 			if value > self.qp:
 				self.qp = value
 		self.verificaçãoPe = (soma*1800) / (self.area*1000)
-
+	"""
+	Removido para usar com a lib
+	"
 	def calcula(self):
 		self.calculaHUI()
 		self.calculaVerificacaoPu()
@@ -121,3 +123,57 @@ class SubBacia:
 		self.calculaPefIntervalo()
 		self.calculaQSimulado()
 		self.calculaVerificacaoPe()
+	"""
+
+	"""
+	Métodos para tentar usar a lib, ou seja, passando k, n e CN por parametro
+	"""
+	def calculaSmm(self, cn):
+		self.s_mm = (float(25400)/cn) - 254
+
+	def calculaHUI(self, k, n):
+		i = 0
+		tempHui = list(SubBacia.dt)
+		for value in self.hui:
+			#Coluna E
+			self.hui[i] = (1/(k*math.gamma(n)))*math.exp(-SubBacia.dt[i]/k)*math.pow((SubBacia.dt[i]/k),(n-1))
+
+			#Coluna F
+			# 10000000/60000 = 1000/6
+			self.hui[i] = float(1000/6) * self.area * self.hui[i]
+
+			#Coluna G
+			if i == 0:
+				tempHui[i] = float(self.hui[i] / 2)				
+			else:
+				tempHui[i] = float((self.hui[i-1] + self.hui[i]) / float(2))
+					
+			#Coluna H
+			tempHui[i] = float(tempHui[i] / float(10))
+			i+=1
+
+		self.hui = tempHui
+		tempHui = []
+
+
+	def calcula(self, cn=None, k=None, n=None):
+		if not cn is None and not k is None and not n is None:
+			self.calculaHUI(k, n)
+			self.calculaVerificacaoPu()
+			self.calculaPAcum()
+			self.calculaSmm(cn)
+			self.calculaPefacum()
+			self.calculaPefIntervalo()
+			self.calculaQSimulado()
+			self.calculaVerificacaoPe()
+		else:
+			self.calculaHUI(self.k, self.n)
+			self.calculaVerificacaoPu()
+			self.calculaPAcum()
+			self.calculaSmm(self.cn)
+			self.calculaPefacum()
+			self.calculaPefIntervalo()
+			self.calculaQSimulado()
+			self.calculaVerificacaoPe()
+	"""
+	"""
