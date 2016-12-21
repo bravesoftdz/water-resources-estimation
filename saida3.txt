@@ -1,0 +1,45 @@
+entrou em init: 52
+108 of 5000 (best like=-64.5242)
+344 of 5000 (best like=-64.5242)
+516 of 5000 (best like=-64.2742)
+688 of 5000 (best like=-64.2742)
+860 of 5000 (best like=-64.2742)
+1032 of 5000 (best like=-64.2155)
+1204 of 5000 (best like=-64.2155)
+1376 of 5000 (best like=-64.1701)
+1548 of 5000 (best like=-64.1275)
+1720 of 5000 (best like=-64.0655)
+1892 of 5000 (best like=-63.9036)
+2064 of 5000 (best like=-63.8838)
+2236 of 5000 (best like=-63.873)
+2408 of 5000 (best like=-63.873)
+2580 of 5000 (best like=-63.8679)
+2752 of 5000 (best like=-63.8669)
+2924 of 5000 (best like=-63.8658)
+3096 of 5000 (best like=-63.8658)
+3268 of 5000 (best like=-63.8649)
+3440 of 5000 (best like=-63.8648)
+3612 of 5000 (best like=-63.8648)
+3784 of 5000 (best like=-63.8646)
+3956 of 5000 (best like=-63.8646)
+4128 of 5000 (best like=-63.8646)
+4300 of 5000 (best like=-63.8646)
+4472 of 5000 (best like=-63.8646)
+4644 of 5000 (best like=-63.8646)
+4816 of 5000 (best like=-63.8646)
+4988 of 5000 (best like=-63.8646)
+5160 of 5000 (best like=-63.8646)
+*** OPTIMIZATION SEARCH TERMINATED BECAUSE THE LIMIT
+ON THE MAXIMUM NUMBER OF TRIALS 
+5000
+HAS BEEN EXCEEDED.
+SEARCH WAS STOPPED AT TRIAL NUMBER: 5160
+NORMALIZED GEOMETRIC RANGE = 0.001528
+THE BEST POINT HAS IMPROVED IN LAST 100 LOOPS BY 100000.000000
+Best parameter set
+[  44.99851748  150.25382036    7.24659632   74.78806837   27.46182999
+    4.47456263   81.23238227   95.30578258    8.34120719   65.6297933
+   52.08993541    8.87483136   64.8408289   173.14639334    2.56122143
+   72.61134634   85.96028166    5.59480986   98.98953895   31.2182093
+    9.98565239]
+Duration:153.32 s

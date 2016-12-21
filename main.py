@@ -10,8 +10,8 @@ class spot_setup(object):
 		self.subBacias = initialize()
 		self.qEsd = readObserved()
 		self.params = []
-		self.tamanho_leituras = len(self.subBacias[0].leituras)
-		print("entrou em init: " + str(self.tamanho_leituras))
+		#self.tamanho_leituras = len(self.subBacias[0].leituras)
+		#print("entrou em init: " + str(self.tamanho_leituras))
 
 		i = 0
 		for sb in self.subBacias:
@@ -49,38 +49,57 @@ class spot_setup(object):
 			qEsd.append(0.0)
 
 		#print("len(erro): " + str(len(erro)) + " len soma: " + str(len(soma)) + " len qEsd" + str(len(self.qEsd))  )
-		#somatorioErro = 0.0
+		somatorioErro = 0.0
 		j = 0
 		while j < len(erro):
 			erro[j] = math.pow(qEsd[j] - soma[j], 2)
-			#somatorioErro += erro[j]
+			somatorioErro += erro[j]
 			j+=1
 
 		#return simulations
 		#print("len erro" + str(len(erro)))
-		return erro
-        
+		#return erro
+		return [somatorioErro]
+
 	def evaluation(self):
-		observations = [0.0 for x in range(len(SubBacia.dt) + self.tamanho_leituras )]
+		#observations = [0.0 for x in range(len(SubBacia.dt) + self.tamanho_leituras )]
+		observations = [0]
 
 		#print("entrou em evaluation: " + str(len(observations)))
 		return observations
 	
 	def objectivefunction(self, simulation = simulation, evaluation = evaluation):
-		#print(len(observations))
+		print("entrou em objectivefunction1")
 		objectivefunction = -spotpy.objectivefunctions.rmse(evaluation = evaluation, simulation = simulation)      
-		#print("entrou em objectivefunction")
+		print("entrou em objectivefunction2")
 		return objectivefunction
 
 #Create samplers for every algorithm:
 results=[]
 setup=spot_setup()
-rep=5000
+rep=20000
 sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='csv')
-sampler.sample(rep,ngs=4)
+sampler.sample(rep,ngs=42)
+"""
+class sceua(_algorithm)  def sample(self, repetitions, ngs=20, kstop=100, pcento=0.0000001, peps=0.0000001) Inferred type: (self: sceua, repetitions: int, ngs: int, kstop: int, pcento: int, peps: float) -> None  
+Samples from parameter distributions using SCE-UA (Duan, 2004), converted to python by Van Hoey (2011).
+  
+repetitions:
+(int) maximum number of function evaluations allowed during optimization
+ngs:
+(int) number of complexes (sub-populations), take more then the number of analysed parameters
+kstop:
+(int) maximum number of evolution loops before convergency
+pcento:
+(int) the percentage change allowed in kstop loops before convergency
+peps:
+(float) Convergence criterium
+"""
 results.append(sampler.getdata())
 evaluation = setup.evaluation()
 
+best_parameters = spotpy.analyser.get_best_parameterset(sampler.getdata())
+print(best_parameters)
 '''
 print("Printando evaluation:")
 print(evaluation)        
@@ -91,11 +110,17 @@ print(results)
 #subBacias = initialize()
 subBacias = setup.subBacias
 
+best_parameters = best_parameters[0]
 i = 1
+j = 0
 for sb in subBacias:
-	print("Sub-Bacia " + str(i))
-	sb.calcula()
+	cn = best_parameters[j]
+	k = best_parameters[j+1]
+	n = best_parameters[j+2]
+	print("Sub-Bacia " + str(i) + " CN: " + str(cn) + " k: " + str(k) + " n: " + str(n))
+	sb.calcula(cn, k, n)
 	i+=1
+	j+=3
 
 qEsd = setup.qEsd
 
@@ -122,7 +147,7 @@ while i < qSimuladoLength:
 	somatorioErro += erro[i]
 	i+=1
 
-print(erro)
+#print(erro)
 print(somatorioErro)
 
 
