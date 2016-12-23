@@ -78,10 +78,11 @@ class spot_setup(object):
 results=[]
 setup=spot_setup()
 rep=20000
-sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='csv')
-sampler.sample(rep,ngs=42)
+sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='ram')
+sampler.sample(rep,ngs=50, kstop = 50)
 """
-class sceua(_algorithm)  def sample(self, repetitions, ngs=20, kstop=100, pcento=0.0000001, peps=0.0000001) Inferred type: (self: sceua, repetitions: int, ngs: int, kstop: int, pcento: int, peps: float) -> None  
+class sceua(_algorithm)  def sample(self, repetitions, ngs=20, kstop=100, pcento=0.0000001, peps=0.0000001) 
+Inferred type: (self: sceua, repetitions: int, ngs: int, kstop: int, pcento: int, peps: float) -> None  
 Samples from parameter distributions using SCE-UA (Duan, 2004), converted to python by Van Hoey (2011).
   
 repetitions:

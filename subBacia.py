@@ -129,6 +129,9 @@ class SubBacia(object):
 		huiLenght = len(self.hui)
 		self.qSimulado = [0.0 for x in range(huiLenght)]
 		
+		if self.verificacaoPu == 0.0:
+			self.verificacaoPu += 1.0e-100
+
 		i = 0
 		for pefIntervalo in self.pefIntervalo:
 			k = i
@@ -174,7 +177,8 @@ class SubBacia(object):
 		for value in self.hui:
 			#Coluna E
 			if SubBacia.dt[i] == 0.0: # pow(0.0, -n) = math domain error 
-				SubBacia.dt[i] += 0.000000000000000000000001
+				#SubBacia.dt[i] += 0.000000000000000000000000000000000000000000000000001
+				SubBacia.dt[i] += 1.0e-100
 			#a = (SubBacia.dt[i]/k)
 			#b = (n-1)
 			#print("dt: " + str(SubBacia.dt[i]))
