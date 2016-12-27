@@ -23,7 +23,7 @@ class SubBacia(object):
 							# Todas colunas de Q a BP, que são usadas para a soma armazenada em BQ
 							# foram abstraídas com esta lista. Pois a mesma é inicializada com 0 em todas posições
 							# e cada valor calculado é somado com o valor que já estava na posição para a qual ele foi designado
-		self.verificaçãoPe = 0.0 # cálculo da "Verificação de Pe", representa a coluna BR
+		self.verificacaoPe = 0.0 # cálculo da "Verificação de Pe", representa a coluna BR
 		self.qp = 0.0		# variável que contém o maior valor verificado em qSimulado, calculado no mesmo método de "Verificação de Pe"
 							# e representa a coluna BT
 		self.flagRodouPAcum = False
@@ -150,7 +150,7 @@ class SubBacia(object):
 			soma += value
 			if value > self.qp:
 				self.qp = value
-		self.verificaçãoPe = (soma*1800) / (self.area*1000)
+		self.verificacaoPe = (soma*1800) / (self.area*1000)
 	"""
 	Removido para usar com a lib
 	"
