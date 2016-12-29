@@ -1,16 +1,26 @@
 import math
 import spotpy
 import numpy as np
+import sys, argparse
 from parser import initialize
 from parser import readObserved
 from subBacia import SubBacia
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--ngs', type=int, required=True)
+    parser.add_argument('--rep', type=int, required=True)
+    args = parser.parse_args()
+    args = vars(args)
+    # ... do something with args.output ...
+    # ... do something with args.verbose ..
 
 class spot_setup(object):
 	def __init__(self):
 		self.subBacias = initialize()
 		self.qEsd = readObserved()
 		self.params = []
-		#self.tamanho_leituras = len(self.subBacias[0].leituras)
+		self.tamanho_leituras = len(self.subBacias[0].leituras)
 		#print("entrou em init: " + str(self.tamanho_leituras))
 
 		i = 0
@@ -58,12 +68,12 @@ class spot_setup(object):
 
 		#return simulations
 		#print("len erro" + str(len(erro)))
-		#return erro
-		return [somatorioErro]
+		return erro
+		#return [somatorioErro]
 
 	def evaluation(self):
-		#observations = [0.0 for x in range(len(SubBacia.dt) + self.tamanho_leituras )]
-		observations = [0]
+		observations = [0.0 for x in range(len(SubBacia.dt) + self.tamanho_leituras )]
+		#observations = [0]
 
 		#print("entrou em evaluation: " + str(len(observations)))
 		return observations
@@ -74,12 +84,16 @@ class spot_setup(object):
 		print("entrou em objectivefunction2")
 		return objectivefunction
 
+rep = args['rep']
+ngs = args['ngs']
+
 #Create samplers for every algorithm:
 results=[]
 setup=spot_setup()
-rep=20000
+#rep=10000
+#ngs=28
 sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='ram')
-sampler.sample(rep,ngs=28)
+sampler.sample(rep,ngs=ngs)
 """
 class sceua(_algorithm)  def sample(self, repetitions, ngs=20, kstop=100, pcento=0.0000001, peps=0.0000001) Inferred type: (self: sceua, repetitions: int, ngs: int, kstop: int, pcento: int, peps: float) -> None  
 Samples from parameter distributions using SCE-UA (Duan, 2004), converted to python by Van Hoey (2011).
@@ -97,6 +111,7 @@ peps:
 """
 results.append(sampler.getdata())
 evaluation = setup.evaluation()
+#spotpy.analyser.plot_parameterInteraction(results) 
 
 best_parameters = spotpy.analyser.get_best_parameterset(sampler.getdata())
 print(best_parameters)
