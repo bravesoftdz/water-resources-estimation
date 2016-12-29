@@ -220,5 +220,11 @@ class SubBacia(object):
 			self.calculaPefIntervalo()
 			self.calculaQSimulado()
 			self.calculaVerificacaoPe()
-	"""
-	"""
+	
+	def calculaParte1(self, cn=None, k=None, n=None):
+		if not cn is None and not k is None and not n is None:
+			self.calculaHUI(k, n)
+			self.calculaVerificacaoPu()
+		else:
+			self.calculaHUI(self.k, self.n)
+			self.calculaVerificacaoPu()
