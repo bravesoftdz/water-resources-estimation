@@ -23,7 +23,7 @@ class SubBacia(object):
 							# Todas colunas de Q a BP, que são usadas para a soma armazenada em BQ
 							# foram abstraídas com esta lista. Pois a mesma é inicializada com 0 em todas posições
 							# e cada valor calculado é somado com o valor que já estava na posição para a qual ele foi designado
-		self.verificaçãoPe = 0.0 # cálculo da "Verificação de Pe", representa a coluna BR
+		self.verificacaoPe = 0.0 # cálculo da "Verificação de Pe", representa a coluna BR
 		self.qp = 0.0		# variável que contém o maior valor verificado em qSimulado, calculado no mesmo método de "Verificação de Pe"
 							# e representa a coluna BT
 		self.flagRodouPAcum = False
@@ -129,6 +129,9 @@ class SubBacia(object):
 		huiLenght = len(self.hui)
 		self.qSimulado = [0.0 for x in range(huiLenght)]
 		
+		if self.verificacaoPu == 0.0:
+			self.verificacaoPu += 1.0e-100
+
 		i = 0
 		for pefIntervalo in self.pefIntervalo:
 			k = i
@@ -147,7 +150,7 @@ class SubBacia(object):
 			soma += value
 			if value > self.qp:
 				self.qp = value
-		self.verificaçãoPe = (soma*1800) / (self.area*1000)
+		self.verificacaoPe = (soma*1800) / (self.area*1000)
 	"""
 	Removido para usar com a lib
 	"
@@ -174,7 +177,8 @@ class SubBacia(object):
 		for value in self.hui:
 			#Coluna E
 			if SubBacia.dt[i] == 0.0: # pow(0.0, -n) = math domain error 
-				SubBacia.dt[i] += 0.000000000000000000000001
+				#SubBacia.dt[i] += 0.000000000000000000000000000000000000000000000000001
+				SubBacia.dt[i] += 1.0e-100
 			#a = (SubBacia.dt[i]/k)
 			#b = (n-1)
 			#print("dt: " + str(SubBacia.dt[i]))
@@ -221,8 +225,8 @@ class SubBacia(object):
 			self.calculaQSimulado()
 			self.calculaVerificacaoPe()
 	
-	def calculaParte1(self, cn=None, k=None, n=None):
-		if not cn is None and not k is None and not n is None:
+	def calculaParte1(self, k=None, n=None):
+		if not k is None and not n is None:
 			self.calculaHUI(k, n)
 			self.calculaVerificacaoPu()
 		else:
