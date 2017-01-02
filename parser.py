@@ -11,7 +11,6 @@ def initialize(datafile='in.txt'):
 		content = f.read().splitlines()
 
 	i = 0
-	novaBacia = False
 	for line in content:
 		valores = line.split()
 		if(len(valores) >= 2):
@@ -19,14 +18,10 @@ def initialize(datafile='in.txt'):
 			subBacias[i].cn = float(valores[1])
 			subBacias[i].k = float(valores[2])
 			subBacias[i].n = float(valores[3])
+			subBacias[i].ia = float(valores[4])
 			i+=1
-			novaBacia = False
 		else:
-			if not novaBacia:
-				subBacias[i-1].ia = float(line)
-				novaBacia = True
-			else:
-				subBacias[i-1].leituras.append(float(line))
+			subBacias[i-1].leituras.append(float(line))
 	return subBacias
 
 def readObserved(datafile='Q_ESD_Observada.txt'):
