@@ -1,10 +1,14 @@
 # water-resources-estimation
 <p> Para a execução é necessário ter instalado o Python 3.5.2 (python3) e a biblioteca <a href="http://fb09-pasig.umwelt.uni-giessen.de/spotpy/">Spotpy</a>, sendo que ela precisa da NumPy e da Scipy, segundo a documentação. </p>
 <p> Com elas instaladas, basta chamar o arquivo <a href="https://github.com/erickm32/water-resources-estimation/blob/master/main.py">main.py </a> passando os parâmetros ngs e número de repetições. No exemplo abaixo, 28 e 5000, respectivamente. </p>
-<p> $ python3 main.py --ngs=28 --rep=5000 </p> 
+
+```
+$ python3 main.py --ngs=28 --rep=5000
+```
+
 <p> Também é necessário ter os arquivos in.txt e Q_ESD_Observada.txt (além dos outros .py) na pasta. </p> 
 <p> <strike> Pro Windows deve ser só clicar pra executar o main.py. </strike> </p>
-<p> Ainda não consegui testar efetivamente no Windows para dar instruções precisas de como executar.</p>
+<p> Ainda não consegui testar efetivamente no Windows para dar instruções precisas de como executar, mas o fato é que a spotpy precisa estar instalada para funcionar.</p>
 <p></p>
 <p> A codificação de in.txt é: </p> 
 <ul>
