@@ -30,10 +30,11 @@ class SubBacia(object):
 		self.flagRodouPefacum = False
 		self.flagRodouPefIntervalo = False
 		self.flagRodouQSimulado = False
+		self.flagRodouUmaVez = False
 
 	def show(self):
 		print("Área: " + str(self.area) + "   cn: " + str(self.cn) + "   k: " + str(self.k) + "   n: " + str(self.n) + "   Ia: " + str(self.ia))
-		for l in sb.leituras:
+		for l in self.leituras:
 			print(l)
 
 	def calculaSmm(self):
@@ -222,3 +223,96 @@ class SubBacia(object):
 			self.calculaVerificacaoPe()
 	"""
 	"""
+	def calculaTudo(self, cn=None, k=None, n=None):
+		if cn is None or k is None or n is None:
+			cn = self.cn
+			k = self.k
+			n = self.n
+		#def calculaHUI(self):
+		i = 0
+		tempHui = list(SubBacia.dt)
+		somaPu = 0.0
+		for value in self.hui:
+			#Coluna E
+			if SubBacia.dt[i] == 0.0: # pow(0.0, -n) = math domain error 
+				SubBacia.dt[i] += 0.000000000000000000000001
+			
+			self.hui[i] = (1/(k*math.gamma(n)))*math.exp(-SubBacia.dt[i]/k)*math.pow((SubBacia.dt[i]/k),(n-1))
+
+			self.hui[i] = float(1000/6) * self.area * self.hui[i]
+
+			#Coluna G
+			if i == 0:
+				tempHui[i] = float(self.hui[i] / 2)				
+			else:
+				tempHui[i] = float((self.hui[i-1] + self.hui[i]) / float(2))
+					
+			#Coluna H
+			tempHui[i] = float(tempHui[i] / float(10))
+
+			#VerificaçãoPu
+			somaPu += tempHui[i]
+			i+=1
+
+		self.hui = tempHui
+		#VerificaçãoPu -> =(SOMA(H3:H132)*30*60)/(D3*1000)
+		self.verificacaoPu = float(somaPu * 1800) / float(self.area * 1000)
+		tempHui = []
+
+		#def calculaSmm(self, cn):
+		self.s_mm = (float(25400)/cn) - 254
+
+		#def calculaPAcum(self):
+		if not self.flagRodouUmaVez: #se nao rodou pela primeira vez
+			self.pacum.append(self.ia)
+			l = len(self.leituras)
+			i = 1
+			while i < l:
+				#lista[-1] retorna ultimo elemento da lista
+				self.pacum.append(self.pacum[-1] + self.leituras[i])	
+				i+=1
+
+			for value in self.pacum:
+				self.pefacum.append( math.pow((value - self.ia), 2) / (value + self.s_mm - self.ia) )
+
+			self.pefIntervalo.append(0.0)
+			l = len(self.pefacum)
+			i = 1
+			while i < l: 
+				self.pefIntervalo.append(self.pefacum[i] - self.pefacum[i-1])
+				i+=1
+			self.flagRodouUmaVez = True
+
+
+		else:
+			i = 1
+			l = len(self.leituras)
+			while i < l:
+				self.pacum[i] = self.pacum[i-1] + self.leituras[i]
+
+				if i == 1:
+					self.pefacum[i] = math.pow((self.pacum[0] - self.ia), 2) / (self.pacum[0] + self.s_mm - self.ia)
+				else:
+					self.pefacum[i] = math.pow((self.pacum[i] - self.ia), 2) / (self.pacum[i] + self.s_mm - self.ia)
+
+				self.pefIntervalo[i] = self.pefacum[i] - self.pefacum[i-1]
+				i+=1
+
+
+		
+		#def calculaQSimulado(self):
+		self.qSimulado = [0.0 for x in range(len(self.hui))]
+		
+		i = 0
+		for pefIntervalo in self.pefIntervalo:
+			k = i
+			for hui in self.hui:
+				self.qSimulado[k] += (pefIntervalo / self.verificacaoPu) * hui 
+				k+=1
+			i+=1
+			self.qSimulado.append(0.0)
+
+
+		
+			
+		
