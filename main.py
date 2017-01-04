@@ -41,7 +41,7 @@ class spot_setup(object):
 
 		i = 0
 		for sb in self.subBacias:
-			sb.calcula(cn = vector[i], k = vector[i+1], n = vector[i+2])
+			sb.calculaTudo(cn = vector[i], k = vector[i+1], n = vector[i+2])
 			#qSimulado é (deve ser) a lista que contém todos os ultimos valores calculados
 			#eles que serão somados com os das outras sub-bacias pra calcular a planilha de controle
 
@@ -68,12 +68,12 @@ class spot_setup(object):
 
 		#return simulations
 		#print("len erro" + str(len(erro)))
-		return erro
-		#return [somatorioErro]
+		#return erro
+		return [somatorioErro]
 
 	def evaluation(self):
-		observations = [0.0 for x in range(len(SubBacia.dt) + self.tamanho_leituras )]
-		#observations = [0]
+		#observations = [0.0 for x in range(len(SubBacia.dt) + self.tamanho_leituras )]
+		observations = [0]
 
 		#print("entrou em evaluation: " + str(len(observations)))
 		return observations
@@ -84,6 +84,44 @@ class spot_setup(object):
 		print("entrou em objectivefunction2")
 		return objectivefunction
 
+def calculaSomatorioErro(subBacias, qEsd, best_parameters):
+	i = 1
+	j = 0
+	for sb in subBacias:
+		cn = best_parameters[j]
+		k = best_parameters[j+1]
+		n = best_parameters[j+2]
+		print("Sub-Bacia " + str(i) + " CN: " + str(cn) + " k: " + str(k) + " n: " + str(n))
+		sb.calculaTudo(cn, k, n)
+		i+=1
+		j+=3
+
+	qSimuladoLength = len(subBacias[0].qSimulado)
+	# Todas sub-bacias possuem o mesmo tamanho de qSimulado,
+	# ao menos estou assumindo isso
+
+	while len(qEsd) < qSimuladoLength:
+		qEsd.append(0.0)
+
+	soma = [0.0 for x in range(qSimuladoLength)]
+
+	for sb in subBacias:
+		i = 0
+		for value in sb.qSimulado:
+			soma[i] += value
+			i+=1
+
+	erro = [0.0 for x in range(qSimuladoLength)]
+	somatorioErro = 0.0
+	i = 0
+	while i < qSimuladoLength:
+		erro[i] = math.pow(qEsd[i] - soma[i], 2)
+		somatorioErro += erro[i]
+		i+=1
+
+	return somatorioErro
+
+
 rep = args['rep']
 ngs = args['ngs']
 
@@ -92,70 +130,29 @@ results=[]
 setup=spot_setup()
 #rep=10000
 #ngs=28
-sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='ram')
-sampler.sample(rep,ngs=ngs)
-"""
-class sceua(_algorithm)  def sample(self, repetitions, ngs=20, kstop=100, pcento=0.0000001, peps=0.0000001) Inferred type: (self: sceua, repetitions: int, ngs: int, kstop: int, pcento: int, peps: float) -> None  
-Samples from parameter distributions using SCE-UA (Duan, 2004), converted to python by Van Hoey (2011).
-  
-repetitions:
-(int) maximum number of function evaluations allowed during optimization
-ngs:
-(int) number of complexes (sub-populations), take more then the number of analysed parameters
-kstop:
-(int) maximum number of evolution loops before convergency
-pcento:
-(int) the percentage change allowed in kstop loops before convergency
-peps:
-(float) Convergence criterium
-"""
-results.append(sampler.getdata())
-evaluation = setup.evaluation()
-#spotpy.analyser.plot_parameterInteraction(results) 
 
-best_parameters = spotpy.analyser.get_best_parameterset(sampler.getdata())
-print(best_parameters)
-#subBacias = initialize()
-subBacias = setup.subBacias
+vezes = 10
+while(True): # do-while fulero
+	sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='ram')
+	sampler.sample(rep,ngs=ngs)
 
-best_parameters = best_parameters[0]
-i = 1
-j = 0
-for sb in subBacias:
-	cn = best_parameters[j]
-	k = best_parameters[j+1]
-	n = best_parameters[j+2]
-	print("Sub-Bacia " + str(i) + " CN: " + str(cn) + " k: " + str(k) + " n: " + str(n))
-	sb.calcula(cn, k, n)
-	i+=1
-	j+=3
+	#results.append(sampler.getdata())
+	#evaluation = setup.evaluation()
+	#spotpy.analyser.plot_parameterInteraction(results) 
 
-qEsd = setup.qEsd
+	best_parameters = spotpy.analyser.get_best_parameterset(sampler.getdata())
+	print(best_parameters)
 
-qSimuladoLength = len(subBacias[0].qSimulado)
-# Todas sub-bacias possuem o mesmo tamanho de qSimulado,
-# ao menos estou assumindo isso
+	#subBacias = setup.subBacias
+	#qEsd = setup.qEsd
 
-while len(qEsd) < qSimuladoLength:
-	qEsd.append(0.0)
+	#best_parameters = best_parameters[0]
 
-soma = [0.0 for x in range(qSimuladoLength)]
-
-for sb in subBacias:
-	i = 0
-	for value in sb.qSimulado:
-		soma[i] += value
-		i+=1
-
-erro = [0.0 for x in range(qSimuladoLength)]
-somatorioErro = 0.0
-i = 0
-while i < qSimuladoLength:
-	erro[i] = math.pow(qEsd[i] - soma[i], 2)
-	somatorioErro += erro[i]
-	i+=1
-
-#print(erro)
-print(somatorioErro)
+	somatorioErro = calculaSomatorioErro(setup.subBacias, setup.qEsd, best_parameters[0])
+	vezes-=1
+	#print(erro)
+	print("Somatorio Erro: " + str(somatorioErro))
+	if somatorioErro < 100.00 or vezes < 0:
+		break
 
 
