@@ -1,23 +1,33 @@
 #!/bin/sh
 echo "Execução 1"
-python3 main.py 
+time python3 main.py --ngs=28 --rep=5000
 echo "Execução 2"
-python3 main.py 
+time python3 main.py --ngs=28 --rep=5000
 echo "Execução 3"
-python3 main.py 
+time python3 main.py --ngs=28 --rep=5000
 echo "Execução 4"
-python3 main.py 
+time python3 main.py --ngs=28 --rep=5000
 echo "Execução 5"
-python3 main.py 
+time python3 main.py --ngs=28 --rep=5000
 echo "Execução 6"
-python3 main.py 
+time python3 main.py --ngs=56 --rep=5000
 echo "Execução 7"
-python3 main.py 
+time python3 main.py --ngs=56 --rep=5000
 echo "Execução 8"
-python3 main.py 
+time python3 main.py --ngs=56 --rep=5000
 echo "Execução 9"
-python3 main.py 
+time python3 main.py --ngs=56 --rep=5000
 echo "Execução 10"
-python3 main.py 
+time python3 main.py --ngs=56 --rep=5000
+echo "Execução 11"
+time python3 main.py --ngs=56 --rep=10000
+echo "Execução 12"
+time python3 main.py --ngs=56 --rep=10000
+echo "Execução 13"
+time python3 main.py --ngs=56 --rep=10000
+echo "Execução 14"
+time python3 main.py --ngs=56 --rep=10000
+echo "Execução 15"
+time python3 main.py --ngs=56 --rep=10000
 
 
