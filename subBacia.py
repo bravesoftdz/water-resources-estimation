@@ -224,6 +224,7 @@ class SubBacia(object):
 	"""
 	"""
 	def calculaTudo(self, cn=None, k=None, n=None):
+		#TODO exceptions para divisão por zero e math domain error
 		if cn is None or k is None or n is None:
 			cn = self.cn
 			k = self.k

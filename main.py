@@ -25,9 +25,9 @@ class spot_setup(object):
 
 		i = 0
 		for sb in self.subBacias:
-			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:cn", 20, 99))
+			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:cn", 20, 100))
 			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:k", 0, 300))
-			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:n", 0, 10))
+			self.params.append(spotpy.parameter.Gamma("subBacia[" + str(i) +"]:n", 3, 0, 10))
 			i+=1
 
 	def parameters(self):
@@ -141,7 +141,7 @@ while(True): # do-while fulero
 	#spotpy.analyser.plot_parameterInteraction(results) 
 
 	best_parameters = spotpy.analyser.get_best_parameterset(sampler.getdata())
-	print(best_parameters)
+	#print(best_parameters)
 
 	#subBacias = setup.subBacias
 	#qEsd = setup.qEsd
@@ -152,7 +152,7 @@ while(True): # do-while fulero
 	vezes-=1
 	#print(erro)
 	print("Somatorio Erro: " + str(somatorioErro))
-	if somatorioErro < 100.00 or vezes < 0:
+	if somatorioErro < 50.00 or vezes == 0:
 		break
 
 
