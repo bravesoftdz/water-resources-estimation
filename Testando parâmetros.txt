@@ -1,0 +1,309 @@
+Apenas retirei do excel as parcelas da soma da vazão estimada de outras sub-bacias
+
+Rodando com uma sub-bacia apenas.
+erick@erick-300E4C ~/dev/hidrica (master)$ time python3 main.py --ngs=28 --rep=5000
+784 of 5000 (best like=-2.02064)
+1372 of 5000 (best like=-0.618722)
+1960 of 5000 (best like=-0.578269)
+2548 of 5000 (best like=-0.575058)
+3136 of 5000 (best like=-0.574647)
+3724 of 5000 (best like=-0.574634)
+4312 of 5000 (best like=-0.574634)
+4900 of 5000 (best like=-0.574634)
+*** OPTIMIZATION SEARCH TERMINATED BECAUSE THE LIMIT
+ON THE MAXIMUM NUMBER OF TRIALS 
+5000
+HAS BEEN EXCEEDED.
+SEARCH WAS STOPPED AT TRIAL NUMBER: 5096
+NORMALIZED GEOMETRIC RANGE = 0.000552
+THE BEST POINT HAS IMPROVED IN LAST 100 LOOPS BY 100000.000000
+
+Best parameter set
+[  98.43222255  139.07241783    2.5910933 ]
+Duration:22.16 s
+
+Calculando Sub-Bacia 1 com CN: 98.4322225459, k: 139.072417833 e n: 2.59109329597
+42.264187828190536
+
+real  0m23.004s
+user  0m22.952s
+sys 0m0.048s
+
+
+Resultado estimado sem rodar o sce: 3674.5622817051953
+Resultado estimado rodando o sce: 42.264187828190536
+Resultado no excel: 3,67456228170519000000E+03
+
+
+
+Rodando com duas sub-bacias apenas.
+erick@erick-300E4C ~/dev/hidrica (master)$ time python3 main.py --ngs=28 --rep=5000
+728 of 5000 (best like=-6.40824)
+1092 of 5000 (best like=-4.65079)
+1456 of 5000 (best like=-2.12734)
+1820 of 5000 (best like=-1.62135)
+2184 of 5000 (best like=-1.62135)
+2548 of 5000 (best like=-1.4941)
+2912 of 5000 (best like=-1.46616)
+3276 of 5000 (best like=-1.4189)
+3640 of 5000 (best like=-1.4189)
+4004 of 5000 (best like=-1.40001)
+4368 of 5000 (best like=-1.40001)
+4732 of 5000 (best like=-1.40001)
+5096 of 5000 (best like=-1.39871)
+*** OPTIMIZATION SEARCH TERMINATED BECAUSE THE LIMIT
+ON THE MAXIMUM NUMBER OF TRIALS 
+5000
+HAS BEEN EXCEEDED.
+SEARCH WAS STOPPED AT TRIAL NUMBER: 5096
+NORMALIZED GEOMETRIC RANGE = 0.245276
+THE BEST POINT HAS IMPROVED IN LAST 100 LOOPS BY 100000.000000
+
+Best parameter set
+[  61.00806557  172.86611288    4.79491558   98.99242056  119.3409868
+    2.93938562]
+Duration:45.16 s
+
+Calculando Sub-Bacia 1 com CN: 61.0080655691, k: 172.866112883 e n: 4.79491557661
+Calculando Sub-Bacia 2 com CN: 98.9924205624, k: 119.340986805 e n: 2.93938562015
+109.11462796805135
+
+real  0m47.426s
+user  0m47.316s
+sys 0m0.056s
+
+
+Resultado estimado sem rodar o sce: 3417.1548585501873
+Resultado estimado rodando o sce: 109.11462796805135
+Resultado no excel: 3,41715485855019000000E+03
+
+
+
+
+Rodando com três sub-bacias apenas.
+erick@erick-300E4C ~/dev/hidrica (master)$ time python3 main.py --ngs=28 --rep=5000
+253 of 5000 (best like=-39.4986)
+523 of 5000 (best like=-39.4986)
+1064 of 5000 (best like=-39.4986)
+1596 of 5000 (best like=-38.9655)
+2128 of 5000 (best like=-38.6896)
+2660 of 5000 (best like=-38.6896)
+3192 of 5000 (best like=-38.6896)
+3724 of 5000 (best like=-38.5501)
+4256 of 5000 (best like=-38.4908)
+4788 of 5000 (best like=-38.4642)
+5320 of 5000 (best like=-38.3038)
+*** OPTIMIZATION SEARCH TERMINATED BECAUSE THE LIMIT
+ON THE MAXIMUM NUMBER OF TRIALS 
+5000
+HAS BEEN EXCEEDED.
+SEARCH WAS STOPPED AT TRIAL NUMBER: 5320
+NORMALIZED GEOMETRIC RANGE = 0.468261
+THE BEST POINT HAS IMPROVED IN LAST 100 LOOPS BY 100000.000000
+
+Best parameter set
+[  67.80090348  256.90618074    7.37831965   33.84244489  145.93212861
+    6.49826508   98.97300231   36.5383819     6.88720795]
+Duration:61.95 s
+
+
+Calculando Sub-Bacia 1 com CN: 67.800903476, k: 256.90618074 e n: 7.37831965113
+Calculando Sub-Bacia 2 com CN: 33.8424448931, k: 145.932128612 e n: 6.49826508436
+Calculando Sub-Bacia 3 com CN: 98.9730023066, k: 36.5383818998 e n: 6.88720795032
+2213.9524133202663
+
+real  1m6.361s
+user  1m6.308s
+sys 0m0.044s
+
+
+Resultado estimado sem rodar o sce: 3354.7354236813676
+Resultado estimado rodando o sce: 2213.9524133202663
+Resultado no excel: 3,35473542368137000000E+03
+
+
+
+
+Rodando com quatro sub-bacias apenas.
+erick@erick-300E4C ~/dev/hidrica (master)$ time python3 main.py --ngs=28 --rep=5000
+182 of 5000 (best like=-8.72649)
+361 of 5000 (best like=-8.309)
+543 of 5000 (best like=-8.309)
+1400 of 5000 (best like=-8.309)
+2100 of 5000 (best like=-7.66888)
+2800 of 5000 (best like=-6.84939)
+3500 of 5000 (best like=-6.38649)
+4200 of 5000 (best like=-6.38649)
+4900 of 5000 (best like=-6.38649)
+5600 of 5000 (best like=-6.26559)
+*** OPTIMIZATION SEARCH TERMINATED BECAUSE THE LIMIT
+ON THE MAXIMUM NUMBER OF TRIALS 
+5000
+HAS BEEN EXCEEDED.
+SEARCH WAS STOPPED AT TRIAL NUMBER: 5600
+NORMALIZED GEOMETRIC RANGE = 0.776834
+THE BEST POINT HAS IMPROVED IN LAST 100 LOOPS BY 100000.000000
+
+Best parameter set
+[  54.43477634  103.39812069    5.77794354   53.58039153  122.26005323
+    3.64356716   62.90368404  133.07407427    4.86891297   98.87976241
+   85.04217322    3.66059187]
+Duration:92.07 s
+
+Calculando Sub-Bacia 1 com CN: 54.4347763427, k: 103.398120694 e n: 5.77794354069
+Calculando Sub-Bacia 2 com CN: 53.5803915282, k: 122.260053228 e n: 3.64356715779
+Calculando Sub-Bacia 3 com CN: 62.9036840397, k: 133.074074273 e n: 4.86891296861
+Calculando Sub-Bacia 4 com CN: 98.8797624097, k: 85.0421732177 e n: 3.66059187055
+101.35023233138513
+
+real  1m40.238s
+user  1m40.112s
+sys 0m0.084s
+
+
+Resultado estimado sem rodar o sce: 1565.932580854807
+Resultado estimado rodando o sce: 101.35023233138513
+Resultado no excel: 1,56593258085471000000E+03
+
+Rodei de novo pois os valores deram bem diferentes do anterior que usava 3
+Best parameter set
+[  58.00302447  144.08668595    3.68125797   52.15809302  136.71746806
+    5.69135257   55.82643784  111.58668328    7.09916048   98.95733514
+   84.27119125    3.59868013]
+Duration:87.01 s
+Sub-Bacia 1 CN: 58.0030244664 k: 144.086685946 n: 3.68125797175
+Sub-Bacia 2 CN: 52.1580930237 k: 136.717468055 n: 5.69135256695
+Sub-Bacia 3 CN: 55.8264378439 k: 111.586683277 n: 7.09916047862
+Sub-Bacia 4 CN: 98.9573351436 k: 84.2711912519 n: 3.59868013475
+116.46570485905255
+
+Mas deu um resultado baixo novamente: 116.46570485905255
+
+
+Rodando com cinco sub-bacias apenas.
+erick@erick-300E4C ~/dev/hidrica (master)$ time python3 main.py --ngs=28 --rep=5000
+158 of 5000 (best like=-2.58149)
+313 of 5000 (best like=-2.58149)
+481 of 5000 (best like=-2.58149)
+650 of 5000 (best like=-1.22579)
+820 of 5000 (best like=-1.22579)
+1736 of 5000 (best like=-0.615636)
+2604 of 5000 (best like=-0.615636)
+3472 of 5000 (best like=-0.476257)
+4340 of 5000 (best like=-0.476257)
+5208 of 5000 (best like=-0.452348)
+*** OPTIMIZATION SEARCH TERMINATED BECAUSE THE LIMIT
+ON THE MAXIMUM NUMBER OF TRIALS 
+5000
+HAS BEEN EXCEEDED.
+SEARCH WAS STOPPED AT TRIAL NUMBER: 5208
+NORMALIZED GEOMETRIC RANGE = 0.838569
+THE BEST POINT HAS IMPROVED IN LAST 100 LOOPS BY 100000.000000
+/home/erick/.local/lib/python3.5/site-packages/spotpy/algorithms/sceua.py:332: VisibleDeprecationWarning: using a non-integer number instead of an integer will result in an error in the future
+  BESTX=BESTX.reshape(BESTX.size/self.nopt,self.nopt)
+Best parameter set
+[  66.48988415  169.61442988    6.9979305    53.04299111  162.78057155
+    5.72715605   64.29086927  137.55273262    5.73682397   66.57447563
+   42.62662823    5.33729916   86.39299838  166.25153904    2.20179745]
+Duration:83.85 s
+[ (66.48988414973077, 169.61442987886204, 6.99793049753265, 53.042991111543174, 162.78057155498078, 5.72715605429643, 64.2908692668232, 137.55273262419115, 5.736823968259709, 66.57447563383386, 42.62662822672476, 5.33729915709002, 86.39299838118063, 166.25153904361417, 2.2017974489101446)]
+Calculando Sub-Bacia 1 com CN: 66.4898841497, k: 169.614429879 e n: 6.99793049753
+Calculando Sub-Bacia 2 com CN: 53.0429911115, k: 162.780571555 e n: 5.7271560543
+Calculando Sub-Bacia 3 com CN: 64.2908692668, k: 137.552732624 e n: 5.73682396826
+Calculando Sub-Bacia 4 com CN: 66.5744756338, k: 42.6266282267 e n: 5.33729915709
+Calculando Sub-Bacia 5 com CN: 86.3929983812, k: 166.251539044 e n: 2.20179744891
+745.1838787337283
+
+real  1m34.813s
+user  1m34.748s
+sys 0m0.036s
+
+
+Resultado estimado sem rodar o sce: 1016.8837266829026
+Resultado estimado rodando o sce: 745.1838787337283
+Resultado no excel: 1,01688372668284000000E+03
+Duration:93.76 s
+
+
+Sub-Bacia 1 CN: 52.3307373498 k: 138.032072355 n: 4.62545876668
+Sub-Bacia 2 CN: 65.6834194669 k: 111.466662525 n: 6.08433006058
+Sub-Bacia 3 CN: 63.4555128718 k: 137.133808142 n: 4.23047585901
+Sub-Bacia 4 CN: 66.7156862272 k: 146.526860034 n: 4.14758171338
+Sub-Bacia 5 CN: 85.9966362686 k: 149.927106176 n: 2.39490741293
+927.4894617994702
+
+
+
+
+Rodando com seis sub-bacias apenas.
+erick@erick-300E4C ~/dev/hidrica (master)$ time python3 main.py --ngs=28 --rep=5000
+128 of 5000 (best like=-3.85608)
+259 of 5000 (best like=-3.77192)
+392 of 5000 (best like=-2.02089)
+525 of 5000 (best like=-2.02089)
+651 of 5000 (best like=-2.02089)
+766 of 5000 (best like=-2.02089)
+893 of 5000 (best like=-2.02089)
+1025 of 5000 (best like=-1.01547)
+2072 of 5000 (best like=-0.576106)
+3108 of 5000 (best like=-0.576106)
+4144 of 5000 (best like=-0.530707)
+5180 of 5000 (best like=-0.530707)
+*** OPTIMIZATION SEARCH TERMINATED BECAUSE THE LIMIT
+ON THE MAXIMUM NUMBER OF TRIALS 
+5000
+HAS BEEN EXCEEDED.
+SEARCH WAS STOPPED AT TRIAL NUMBER: 5180
+NORMALIZED GEOMETRIC RANGE = 0.967712
+THE BEST POINT HAS IMPROVED IN LAST 100 LOOPS BY 100000.000000
+/home/erick/.local/lib/python3.5/site-packages/spotpy/algorithms/sceua.py:332: VisibleDeprecationWarning: using a non-integer number instead of an integer will result in an error in the future
+  BESTX=BESTX.reshape(BESTX.size/self.nopt,self.nopt)
+Best parameter set
+[  57.93883961  127.11097083    8.23732959   57.65711078  171.504417
+    5.70047737   64.1543177    66.2793254     5.77376792   56.67963357
+  204.14480779    4.76805115   61.03644126  188.17064034    6.24204802
+   96.61638548  109.81366567    3.50288589]
+Duration:102.83 s
+
+
+Sub-Bacia 1 CN: 57.9388396131 k: 127.11097083 n: 8.23732958905
+Sub-Bacia 2 CN: 57.6571107823 k: 171.504417002 n: 5.70047736943
+Sub-Bacia 3 CN: 64.1543177033 k: 66.2793254046 n: 5.77376791948
+Sub-Bacia 4 CN: 56.6796335741 k: 204.144807794 n: 4.76805115372
+Sub-Bacia 5 CN: 61.0364412597 k: 188.170640343 n: 6.24204802298
+Sub-Bacia 6 CN: 96.6163854816 k: 109.813665672 n: 3.50288589104
+1662.5647351633052
+
+real  1m59.394s
+user  1m59.256s
+sys 0m0.104s
+
+Resultado estimado: 22.68247175191237
+Resultado no excel: 2,26824717519102000000E+01
+
+Duration:102.3 s
+[ (63.70096923247649, 94.12791115291435, 9.601038962858192, 80.36763107711805, 267.09986621240125, 4.001770354396839, 50.524555469295436, 104.41781654478652, 2.7910974951889598, 49.83457010728323, 92.53799896257007, 5.11280707325594, 20.731915576116386, 230.64109343939367, 7.896954195358017, 96.55481509066159, 114.09481067851654, 3.386602687096023)]
+Sub-Bacia 1 CN: 63.7009692325 k: 94.1279111529 n: 9.60103896286
+Sub-Bacia 2 CN: 80.3676310771 k: 267.099866212 n: 4.0017703544
+Sub-Bacia 3 CN: 50.5245554693 k: 104.417816545 n: 2.79109749519
+Sub-Bacia 4 CN: 49.8345701073 k: 92.5379989626 n: 5.11280707326
+Sub-Bacia 5 CN: 20.7319155761 k: 230.641093439 n: 7.89695419536
+Sub-Bacia 6 CN: 96.5548150907 k: 114.094810679 n: 3.3866026871
+1107.9260302136283
+
+real  1m58.176s
+user  1m58.024s
+sys 0m0.072s
+
+
+
+Rodando com as sete sub-bacias
+
+Resultado estimado: 6.529430431005407
+Resultado no excel: 6,59867275861295000000E+00
+
+
+
+
+
+
