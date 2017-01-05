@@ -25,9 +25,9 @@ class spot_setup(object):
 
 		i = 0
 		for sb in self.subBacias:
-			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:cn", 20, 100))
-			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:k", 0, 300))
-			self.params.append(spotpy.parameter.Gamma("subBacia[" + str(i) +"]:n", 3, 0, 10))
+			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:cn", 20, 100, 0.5, 1.0))
+			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:k", 0, 300, 0.5, 1.0))
+			self.params.append(spotpy.parameter.Gamma("subBacia[" + str(i) +"]:n", 3, 0, 10, 0.1, 0.2))
 			i+=1
 
 	def parameters(self):
@@ -79,9 +79,9 @@ class spot_setup(object):
 		return observations
 	
 	def objectivefunction(self, simulation = simulation, evaluation = evaluation):
-		print("entrou em objectivefunction1")
+		#print("entrou em objectivefunction1")
 		objectivefunction = -spotpy.objectivefunctions.rmse(evaluation = evaluation, simulation = simulation)      
-		print("entrou em objectivefunction2")
+		#print("entrou em objectivefunction2")
 		return objectivefunction
 
 def calculaSomatorioErro(subBacias, qEsd, best_parameters):
@@ -132,27 +132,47 @@ setup=spot_setup()
 #ngs=28
 
 vezes = 10
+flag = False
 while(True): # do-while fulero
-	sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='ram')
+	somatoriosErro = []
+
+	'''
+	sampler=spotpy.algorithms.sceua(setup, dbname='saidaSCE', dbformat='ram')
 	sampler.sample(rep,ngs=ngs)
 
-	#results.append(sampler.getdata())
-	#evaluation = setup.evaluation()
-	#spotpy.analyser.plot_parameterInteraction(results) 
+	best_parameters = spotpy.analyser.get_best_parameterset(sampler.getdata())
+
+	somatoriosErro.append(calculaSomatorioErro(setup.subBacias, setup.qEsd, best_parameters[0]))
+	print(somatoriosErro[-1])
+	'''
+	#########
+
+	sampler=spotpy.algorithms.mc(setup,    dbname='saidaMC',    dbformat='ram')
+	sampler.sample(rep)
 
 	best_parameters = spotpy.analyser.get_best_parameterset(sampler.getdata())
-	#print(best_parameters)
 
-	#subBacias = setup.subBacias
-	#qEsd = setup.qEsd
+	somatoriosErro.append(calculaSomatorioErro(setup.subBacias, setup.qEsd, best_parameters[0]))
+	print(somatoriosErro[-1])
+	
+	#########
+	'''
+	sampler=spotpy.algorithms.mcmc(setup,  dbname='saidaMCMC',  dbformat='ram')
+	sampler.sample(rep)
 
-	#best_parameters = best_parameters[0]
+	best_parameters = spotpy.analyser.get_best_parameterset(sampler.getdata())
 
-	somatorioErro = calculaSomatorioErro(setup.subBacias, setup.qEsd, best_parameters[0])
+	somatoriosErro.append(calculaSomatorioErro(setup.subBacias, setup.qEsd, best_parameters[0]))
+	print(somatoriosErro[-1])
+	'''
+	for somatorioErro in somatoriosErro:
+		print("Somatorio Erro: " + str(somatorioErro))
+
+		if somatorioErro <= 50.00:
+			flag = True
+
 	vezes-=1
-	#print(erro)
-	print("Somatorio Erro: " + str(somatorioErro))
-	if somatorioErro < 50.00 or vezes == 0:
+	if flag or vezes == 0:
 		break
 
 
