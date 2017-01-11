@@ -79,9 +79,7 @@ class spot_setup(object):
 		return observations
 	
 	def objectivefunction(self, simulation = simulation, evaluation = evaluation):
-		print("entrou em objectivefunction1")
-		objectivefunction = -spotpy.objectivefunctions.rmse(evaluation = evaluation, simulation = simulation)      
-		print("entrou em objectivefunction2")
+		objectivefunction = -spotpy.objectivefunctions.rmse(evaluation = evaluation, simulation = simulation)
 		return objectivefunction
 
 def calculaSomatorioErro(subBacias, qEsd, best_parameters):
@@ -133,7 +131,7 @@ setup=spot_setup()
 
 vezes = 10
 while(True): # do-while fulero
-	sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='ram')
+	sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='ram', alt_objfun=None)
 	sampler.sample(rep,ngs=ngs)
 
 	#results.append(sampler.getdata())
