@@ -30,7 +30,7 @@ class spot_setup(object):
 		for sb in self.subBacias:
 			self.params.append(spotpy.parameter.Uniform(name="subBacia[" + str(i) +"]:cn", low= 20, high=100))
 			self.params.append(spotpy.parameter.Uniform(name="subBacia[" + str(i) +"]:k", low=0, high=300))
-			self.params.append(spotpy.parameter.Gamma("subBacia[" + str(i) +"]:n", 3))
+			self.params.append(spotpy.parameter.Gamma(name="subBacia[" + str(i) +"]:n", shape=3))
 			#self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:n", 0, 10))
 			i+=1
 
@@ -63,7 +63,7 @@ class spot_setup(object):
 		#print("Soma " + str(len(soma)))
 		while len(qEsd) < len(erro):
 			qEsd.append(0.0)
-		'''
+		
 		#print("len(erro): " + str(len(erro)) + " len soma: " + str(len(soma)) + " len qEsd" + str(len(self.qEsd))  )
 		somatorioErro = 0.0
 		j = 0
@@ -71,21 +71,21 @@ class spot_setup(object):
 			erro[j] = math.pow(qEsd[j] - soma[j], 2)
 			somatorioErro += erro[j]
 			j+=1
-		'''
+		
 
 		#return simulations
 		#print("len erro" + str(len(erro)))
-		#return erro
+		return erro
 		#return [somatorioErro]
-		return soma
+		#return soma
 
 	def evaluation(self):
-		#observations = [0.0 for x in range(len(SubBacia.dt) + self.tamanho_leituras )]
+		observations = [0.0 for x in range(self.tamanho_qSimulado )]
 		#observations = [0]
 
 		#print("entrou em evaluation: " + str(len(observations)))
-		#return observations
-		return self.qEsd
+		return observations
+		#return self.qEsd
 	
 	def objectivefunction(self, simulation = simulation, evaluation = evaluation):
 		objectivefunction = +spotpy.objectivefunctions.rmse(evaluation = evaluation, simulation = simulation)
