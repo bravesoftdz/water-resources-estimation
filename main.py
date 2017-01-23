@@ -21,13 +21,17 @@ class spot_setup(object):
 		self.qEsd = readObserved()
 		self.params = []
 		self.tamanho_leituras = len(self.subBacias[0].leituras)
+		self.tamanho_qSimulado = len(SubBacia.dt) + self.tamanho_leituras
+		#print(self.tamanho_qSimulado)
 		#print("entrou em init: " + str(self.tamanho_leituras))
+
 
 		i = 0
 		for sb in self.subBacias:
-			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:cn", 20, 100))
-			self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:k", 0, 300))
-			self.params.append(spotpy.parameter.Gamma("subBacia[" + str(i) +"]:n", 3, 0, 10))
+			self.params.append(spotpy.parameter.Uniform(name="subBacia[" + str(i) +"]:cn", low= 20, high=100))
+			self.params.append(spotpy.parameter.Uniform(name="subBacia[" + str(i) +"]:k", low=0, high=300))
+			self.params.append(spotpy.parameter.Gamma("subBacia[" + str(i) +"]:n", 3))
+			#self.params.append(spotpy.parameter.Uniform("subBacia[" + str(i) +"]:n", 0, 10))
 			i+=1
 
 	def parameters(self):
@@ -39,13 +43,14 @@ class spot_setup(object):
 		#print("entrou em simulation")
 		qEsd = self.qEsd
 
+		soma = [0.0 for x in range(self.tamanho_qSimulado)]
 		i = 0
 		for sb in self.subBacias:
 			sb.calculaTudo(cn = vector[i], k = vector[i+1], n = vector[i+2])
 			#qSimulado é (deve ser) a lista que contém todos os ultimos valores calculados
 			#eles que serão somados com os das outras sub-bacias pra calcular a planilha de controle
 
-			soma = [0.0 for x in range(len(sb.qSimulado))]
+			#soma = [0.0 for x in range(len(sb.qSimulado))]
 			j = 0
 			for value in sb.qSimulado:
 				soma[j] += value
@@ -55,9 +60,10 @@ class spot_setup(object):
 
 
 		erro = [0.0 for x in range(len(soma))]
+		#print("Soma " + str(len(soma)))
 		while len(qEsd) < len(erro):
 			qEsd.append(0.0)
-
+		'''
 		#print("len(erro): " + str(len(erro)) + " len soma: " + str(len(soma)) + " len qEsd" + str(len(self.qEsd))  )
 		somatorioErro = 0.0
 		j = 0
@@ -65,21 +71,25 @@ class spot_setup(object):
 			erro[j] = math.pow(qEsd[j] - soma[j], 2)
 			somatorioErro += erro[j]
 			j+=1
+		'''
 
 		#return simulations
 		#print("len erro" + str(len(erro)))
 		#return erro
-		return [somatorioErro]
+		#return [somatorioErro]
+		return soma
 
 	def evaluation(self):
 		#observations = [0.0 for x in range(len(SubBacia.dt) + self.tamanho_leituras )]
-		observations = [0]
+		#observations = [0]
 
 		#print("entrou em evaluation: " + str(len(observations)))
-		return observations
+		#return observations
+		return self.qEsd
 	
 	def objectivefunction(self, simulation = simulation, evaluation = evaluation):
-		objectivefunction = -spotpy.objectivefunctions.rmse(evaluation = evaluation, simulation = simulation)
+		objectivefunction = +spotpy.objectivefunctions.rmse(evaluation = evaluation, simulation = simulation)
+		#objectivefunction = -spotpy.objectivefunctions.nashsutcliff(evaluation = evaluation, simulation = simulation)
 		return objectivefunction
 
 def calculaSomatorioErro(subBacias, qEsd, best_parameters):
@@ -129,9 +139,11 @@ setup=spot_setup()
 #rep=10000
 #ngs=28
 
-vezes = 10
+vezes = 1
+vezes_p = vezes
 while(True): # do-while fulero
-	sampler=spotpy.algorithms.sceua(setup, dbname='saida', dbformat='ram', alt_objfun=None)
+	print("Execução " + str(vezes_p-vezes+1))
+	sampler=spotpy.algorithms.sceua(setup, dbname='saidaSCE'+str(vezes), dbformat='ram', alt_objfun=None)
 	sampler.sample(rep,ngs=ngs)
 
 	#results.append(sampler.getdata())
@@ -150,7 +162,6 @@ while(True): # do-while fulero
 	vezes-=1
 	#print(erro)
 	print("Somatorio Erro: " + str(somatorioErro))
-	if somatorioErro < 50.00 or vezes == 0:
+	if somatorioErro < 10.00 or vezes == 0:
 		break
-
 
