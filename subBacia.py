@@ -23,7 +23,7 @@ class SubBacia(object):
 							# Todas colunas de Q a BP, que são usadas para a soma armazenada em BQ
 							# foram abstraídas com esta lista. Pois a mesma é inicializada com 0 em todas posições
 							# e cada valor calculado é somado com o valor que já estava na posição para a qual ele foi designado
-		self.verificaçãoPe = 0.0 # cálculo da "Verificação de Pe", representa a coluna BR
+		self.verificacaoPe = 0.0 # cálculo da "Verificação de Pe", representa a coluna BR
 		self.qp = 0.0		# variável que contém o maior valor verificado em qSimulado, calculado no mesmo método de "Verificação de Pe"
 							# e representa a coluna BT
 		self.flagRodouPAcum = False
@@ -47,9 +47,12 @@ class SubBacia(object):
 			#Coluna E
 			self.hui[i] = (1/(self.k*math.gamma(self.n)))*math.exp(-SubBacia.dt[i]/self.k)*math.pow((SubBacia.dt[i]/self.k),(self.n-1))
 
+			print("Coluna E: " + str(self.hui[i]))
+
 			#Coluna F
 			# 10000000/60000 = 1000/6
 			self.hui[i] = float(1000/6) * self.area * self.hui[i]
+			print("Coluna F: " + str(self.hui[i]))
 
 			#Coluna G
 			if i == 0:
@@ -57,8 +60,10 @@ class SubBacia(object):
 			else:
 				tempHui[i] = float((self.hui[i-1] + self.hui[i]) / float(2))
 				
+			print("Coluna G: " + str(self.hui[i]))
 			#Coluna H
 			tempHui[i] = float(tempHui[i] / float(10))
+			print("Coluna H: " + str(self.hui[i]))
 			i+=1
 
 		self.hui = tempHui
@@ -148,7 +153,7 @@ class SubBacia(object):
 			soma += value
 			if value > self.qp:
 				self.qp = value
-		self.verificaçãoPe = (soma*1800) / (self.area*1000)
+		self.verificacaoPe = (soma*1800) / (self.area*1000)
 	"""
 	Removido para usar com a lib
 	"
@@ -174,15 +179,10 @@ class SubBacia(object):
 		tempHui = list(SubBacia.dt)
 		for value in self.hui:
 			#Coluna E
-			if SubBacia.dt[i] == 0.0: # pow(0.0, -n) = math domain error 
-				SubBacia.dt[i] += 0.000000000000000000000001
-			#a = (SubBacia.dt[i]/k)
-			#b = (n-1)
-			#print("dt: " + str(SubBacia.dt[i]))
-			#print("a:" + str(a) )
-			#print("b: " + str(b) )
-			#print("pow: " + str(math.pow(a,b)))
-			self.hui[i] = (1/(k*math.gamma(n)))*math.exp(-SubBacia.dt[i]/k)*math.pow((SubBacia.dt[i]/k),(n-1))
+			if i == 0:
+				self.hui[i] = 0.0
+			else:
+				self.hui[i] = (1/(k*math.gamma(n)))*math.exp(-SubBacia.dt[i]/k)*math.pow((SubBacia.dt[i]/k),(n-1))
 
 			#Coluna F
 			# 10000000/60000 = 1000/6
@@ -235,10 +235,10 @@ class SubBacia(object):
 		somaPu = 0.0
 		for value in self.hui:
 			#Coluna E
-			if SubBacia.dt[i] == 0.0: # pow(0.0, -n) = math domain error 
-				SubBacia.dt[i] += 0.000000000000000000000001
-			
-			self.hui[i] = (1/(k*math.gamma(n)))*math.exp(-SubBacia.dt[i]/k)*math.pow((SubBacia.dt[i]/k),(n-1))
+			if i == 0:
+				self.hui[i] = 0.0
+			else:
+				self.hui[i] = (1/(k*math.gamma(n)))*math.exp(-SubBacia.dt[i]/k)*math.pow((SubBacia.dt[i]/k),(n-1))
 
 			self.hui[i] = float(1000/6) * self.area * self.hui[i]
 
@@ -312,6 +312,15 @@ class SubBacia(object):
 				k+=1
 			i+=1
 			self.qSimulado.append(0.0)
+
+	
+		soma_temp = 0.0
+		self.qp = -1
+		for value in self.qSimulado:
+			soma_temp += value
+			if value > self.qp:
+				self.qp = value
+		self.verificacaoPe = (soma_temp*1800) / (self.area*1000)
 
 
 		
