@@ -1,5 +1,3 @@
-import sys
-import math 
 from subBacia import SubBacia
 
 def initialize(datafile='in.txt'):
